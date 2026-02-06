@@ -31,7 +31,7 @@ const PrivacyOverlay: React.FC<PrivacyOverlayProps> = ({ isVisible, message = "H
                 {message}
             </Typography>
             <Typography variant="caption" sx={{ color: '#555', mt: 3 }}>
-                Screen sharing is automatically suppressed for privacy.
+                Screen sharing is automatically suppressed for privacy theme.
             </Typography>
             <CircularProgress size={20} sx={{ mt: 2, color: '#6C5DD3' }} />
         </Box>
