@@ -32,7 +32,9 @@ export const CoBrowseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
         console.log("Attempting to connect to WS...");
         setStatus('connecting');
-        const ws = new WebSocket('ws://localhost:8080');
+        const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8080';
+        console.log("Connecting to:", wsUrl);
+        const ws = new WebSocket(wsUrl);
         
         ws.onopen = () => {
             console.log("WS Connected");

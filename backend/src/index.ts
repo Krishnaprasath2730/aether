@@ -1,7 +1,11 @@
-
 import { WebSocketServer, WebSocket } from 'ws';
+import dotenv from 'dotenv';
 
-const wss = new WebSocketServer({ port: 8080 });
+dotenv.config();
+
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 8080;
+
+const wss = new WebSocketServer({ port: PORT });
 
 interface Client {
     ws: WebSocket;
@@ -11,7 +15,7 @@ interface Client {
 
 const clients = new Map<WebSocket, Client>();
 
-console.log('Signaling server running on port 8080');
+console.log(`Signaling server running on port ${PORT}`);
 
 wss.on('connection', (ws) => {
     console.log('New client connected');
