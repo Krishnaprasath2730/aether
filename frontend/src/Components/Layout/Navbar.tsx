@@ -20,11 +20,11 @@ const Navbar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const categories = [
-    { name: 'MEN', path: '/shop?category=Men' },
-    { name: 'WOMEN', path: '/shop?category=Women' },
-    { name: 'OUTERWEAR', path: '/shop?category=Outerwear' },
+    { name: 'SHOP', path: '/shop' },
+    { name: 'WOMEN\'S', path: '/shop?category=Women' },
+    { name: 'MEN\'S', path: '/shop?category=Men' },
     { name: 'ACCESSORIES', path: '/shop?category=Accessories' },
-    { name: 'FOOTWEAR', path: '/shop?category=Footwear' }
+    { name: 'PAGES', path: '/pages' }
   ];
 
   const handleSearch = (e: React.FormEvent) => {

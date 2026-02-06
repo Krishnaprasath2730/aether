@@ -2,17 +2,24 @@ import React from 'react';
 import { Box } from '@mui/material';
 import Hero from '../Home/Hero';
 import Categories from '../Home/Categories';
-import FeaturedProducts from '../Home/FeaturedProducts';
-import Features from '../Home/Features';
+import ProductTabs from '../Home/ProductTabs';
+import SplitBanner from '../Home/SplitBanner';
+import Brands from '../Home/Brands';
+import BlogSection from '../Home/BlogSection';
+import InstagramFeed from '../Home/InstagramFeed';
 import Newsletter from '../Home/Newsletter';
 
 const Home: React.FC = () => {
   return (
     <Box>
       <Hero />
-      <Features />
       <Categories />
-      <FeaturedProducts />
+      <ProductTabs />
+      <SplitBanner />
+      <ProductTabs /> {/* Reuse for "Trending Now" section layout */}
+      <Brands />
+      <BlogSection />
+      <InstagramFeed />
       <Newsletter />
     </Box>
   );
