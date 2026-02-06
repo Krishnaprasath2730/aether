@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Container, Typography, TextField, Button, Grid, Stepper, Step, StepLabel, Radio, RadioGroup, Dialog, DialogContent, CircularProgress, Alert } from '@mui/material';
+import { Box, Container, Typography, TextField, Button, Stepper, Step, StepLabel, Radio, RadioGroup, Dialog, DialogContent, CircularProgress, Alert } from '@mui/material';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import PaymentIcon from '@mui/icons-material/Payment';
@@ -168,9 +168,9 @@ const Payment: React.FC = () => {
         <Step><StepLabel>Payment</StepLabel></Step>
       </Stepper>
 
-      <Grid container spacing={6}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
         {/* Payment Form */}
-        <Grid size={{ xs: 12, md: 8 }}>
+        <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 60%' }, maxWidth: { md: '65%' } }}>
           <Box component="form" onSubmit={handleSubmit} noValidate>
             <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>Payment Method</Typography>
             
@@ -222,8 +222,8 @@ const Payment: React.FC = () => {
                   <LockIcon fontSize="small" sx={{ color: '#4caf50' }} />
                   <Typography variant="subtitle2" fontWeight={600}>Secure Card Payment</Typography>
                 </Box>
-                <Grid container spacing={2}>
-                  <Grid size={{ xs: 12 }}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                  <Box sx={{ flex: '1 1 100%' }}>
                     <TextField
                       fullWidth
                       required
@@ -236,8 +236,8 @@ const Payment: React.FC = () => {
                       helperText={cardErrors.cardNumber}
                       inputProps={{ maxLength: 19 }}
                     />
-                  </Grid>
-                  <Grid size={{ xs: 12 }}>
+                  </Box>
+                  <Box sx={{ flex: '1 1 100%' }}>
                     <TextField
                       fullWidth
                       required
@@ -250,8 +250,8 @@ const Payment: React.FC = () => {
                       helperText={cardErrors.cardName}
                       inputProps={{ style: { textTransform: 'uppercase' } }}
                     />
-                  </Grid>
-                  <Grid size={{ xs: 6 }}>
+                  </Box>
+                  <Box sx={{ flex: { xs: '1 1 45%' } }}>
                     <TextField
                       fullWidth
                       required
@@ -264,8 +264,8 @@ const Payment: React.FC = () => {
                       helperText={cardErrors.expiry}
                       inputProps={{ maxLength: 5 }}
                     />
-                  </Grid>
-                  <Grid size={{ xs: 6 }}>
+                  </Box>
+                  <Box sx={{ flex: { xs: '1 1 45%' } }}>
                     <TextField
                       fullWidth
                       required
@@ -279,8 +279,8 @@ const Payment: React.FC = () => {
                       helperText={cardErrors.cvv}
                       inputProps={{ maxLength: 4 }}
                     />
-                  </Grid>
-                </Grid>
+                  </Box>
+                </Box>
               </Box>
             )}
 
@@ -342,10 +342,10 @@ const Payment: React.FC = () => {
               </Button>
             </Box>
           </Box>
-        </Grid>
+        </Box>
 
         {/* Order Summary */}
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 30%' }, maxWidth: { md: '35%' } }}>
           <Box sx={{ bgcolor: '#f9f9f9', borderRadius: 2, p: 3, position: 'sticky', top: 100 }}>
             <Typography variant="h6" fontWeight={700} sx={{ mb: 3 }}>Order Summary</Typography>
             
@@ -376,8 +376,8 @@ const Payment: React.FC = () => {
               </Typography>
             </Box>
           </Box>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Processing/Success Dialog */}
       <Dialog 

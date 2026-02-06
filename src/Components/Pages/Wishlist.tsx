@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Box, Container, Typography, Button, Grid, IconButton } from '@mui/material';
+import { Box, Container, Typography, Button, IconButton } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
@@ -56,77 +56,88 @@ const Wishlist: React.FC = () => {
         </Button>
       </Box>
 
-      <Grid container spacing={3}>
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          gap: 3 
+        }}
+      >
         {items.map(item => (
-          <Grid key={item.id} size={{ xs: 6, sm: 4, md: 3 }}>
-            <Box sx={{ position: 'relative' }}>
-              {/* Image */}
-              <Link to={`/product/${item.id}`}>
-                <Box
-                  component="img"
-                  src={item.image}
-                  alt={item.name}
-                  sx={{ 
-                    width: '100%', 
-                    aspectRatio: '3/4', 
-                    objectFit: 'cover',
-                    borderRadius: 1,
-                    cursor: 'pointer',
-                    transition: 'transform 0.3s',
-                    '&:hover': { transform: 'scale(1.02)' }
-                  }}
-                />
-              </Link>
-
-              {/* Remove Button */}
-              <IconButton
-                onClick={() => removeFromWishlist(item.id)}
+          <Box 
+            key={item.id}
+            sx={{ 
+              flex: { xs: '1 1 45%', sm: '1 1 30%', md: '1 1 22%' },
+              maxWidth: { xs: '48%', sm: '32%', md: '24%' },
+              position: 'relative' 
+            }}
+          >
+            {/* Image */}
+            <Link to={`/product/${item.id}`}>
+              <Box
+                component="img"
+                src={item.image}
+                alt={item.name}
                 sx={{ 
-                  position: 'absolute', 
-                  top: 8, 
-                  right: 8, 
-                  bgcolor: 'white',
-                  '&:hover': { bgcolor: '#ffebee', color: '#e91e63' }
+                  width: '100%', 
+                  aspectRatio: '3/4', 
+                  objectFit: 'cover',
+                  borderRadius: 1,
+                  cursor: 'pointer',
+                  transition: 'transform 0.3s',
+                  '&:hover': { transform: 'scale(1.02)' }
+                }}
+              />
+            </Link>
+
+            {/* Remove Button */}
+            <IconButton
+              onClick={() => removeFromWishlist(item.id)}
+              sx={{ 
+                position: 'absolute', 
+                top: 8, 
+                right: 8, 
+                bgcolor: 'white',
+                '&:hover': { bgcolor: '#ffebee', color: '#e91e63' }
+              }}
+            >
+              <DeleteOutlineIcon fontSize="small" />
+            </IconButton>
+
+            {/* Details */}
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
+                {item.category}
+              </Typography>
+              <Link to={`/product/${item.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Typography variant="subtitle1" fontWeight={600} sx={{ '&:hover': { color: '#D5A249' } }}>
+                  {item.name}
+                </Typography>
+              </Link>
+              <Typography variant="body1" fontWeight={600} sx={{ mt: 0.5 }}>
+                ${item.price.toFixed(2)}
+              </Typography>
+
+              {/* Quick Add Button */}
+              <Button
+                variant="outlined"
+                fullWidth
+                size="small"
+                startIcon={<ShoppingBagOutlinedIcon />}
+                onClick={() => handleQuickAdd(item)}
+                sx={{ 
+                  mt: 2, 
+                  borderColor: '#2C2C2C', 
+                  color: '#2C2C2C',
+                  '&:hover': { bgcolor: '#2C2C2C', color: 'white' }
                 }}
               >
-                <DeleteOutlineIcon fontSize="small" />
-              </IconButton>
-
-              {/* Details */}
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
-                  {item.category}
-                </Typography>
-                <Link to={`/product/${item.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <Typography variant="subtitle1" fontWeight={600} sx={{ '&:hover': { color: '#D5A249' } }}>
-                    {item.name}
-                  </Typography>
-                </Link>
-                <Typography variant="body1" fontWeight={600} sx={{ mt: 0.5 }}>
-                  ${item.price.toFixed(2)}
-                </Typography>
-
-                {/* Quick Add Button */}
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  size="small"
-                  startIcon={<ShoppingBagOutlinedIcon />}
-                  onClick={() => handleQuickAdd(item)}
-                  sx={{ 
-                    mt: 2, 
-                    borderColor: '#2C2C2C', 
-                    color: '#2C2C2C',
-                    '&:hover': { bgcolor: '#2C2C2C', color: 'white' }
-                  }}
-                >
-                  Quick Add
-                </Button>
-              </Box>
+                Quick Add
+              </Button>
             </Box>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
 
       <Button
         startIcon={<ArrowBackIcon />}

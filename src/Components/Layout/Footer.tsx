@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Container, Typography, Grid, Stack, IconButton, TextField, Button } from '@mui/material';
+import { Box, Container, Typography, Stack, IconButton, TextField, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import TwitterIcon from '@mui/icons-material/Twitter';
@@ -17,10 +17,16 @@ const Footer: React.FC = () => {
 
       {/* Main Footer Content */}
       <Container maxWidth="xl" sx={{ py: { xs: 8, md: 12 } }}>
-        <Grid container spacing={8}>
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            flexWrap: 'wrap', 
+            gap: { xs: 4, md: 8 } 
+          }}
+        >
           
           {/* Brand Column */}
-          <Grid size={{ xs: 12, md: 4 }}>
+          <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 30%' }, maxWidth: { md: '33%' } }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
               <Box
                 component="img"
@@ -64,10 +70,10 @@ const Footer: React.FC = () => {
                 </IconButton>
               ))}
             </Stack>
-          </Grid>
+          </Box>
 
           {/* Quick Links */}
-          <Grid size={{ xs: 6, sm: 3, md: 2 }}>
+          <Box sx={{ flex: { xs: '1 1 45%', sm: '1 1 20%', md: '0 0 auto' }, minWidth: 120 }}>
             <Typography sx={{ fontWeight: 600, mb: 3, letterSpacing: 2, fontSize: '0.8rem', color: '#D5A249' }}>
               SHOP
             </Typography>
@@ -87,10 +93,10 @@ const Footer: React.FC = () => {
                 </Link>
               ))}
             </Stack>
-          </Grid>
+          </Box>
 
           {/* Help Links */}
-          <Grid size={{ xs: 6, sm: 3, md: 2 }}>
+          <Box sx={{ flex: { xs: '1 1 45%', sm: '1 1 20%', md: '0 0 auto' }, minWidth: 120 }}>
             <Typography sx={{ fontWeight: 600, mb: 3, letterSpacing: 2, fontSize: '0.8rem', color: '#D5A249' }}>
               HELP
             </Typography>
@@ -110,10 +116,10 @@ const Footer: React.FC = () => {
                 </Typography>
               ))}
             </Stack>
-          </Grid>
+          </Box>
 
           {/* Newsletter */}
-          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 30%' }, maxWidth: { md: '33%' } }}>
             <Typography sx={{ fontWeight: 600, mb: 3, letterSpacing: 2, fontSize: '0.8rem', color: '#D5A249' }}>
               STAY CONNECTED
             </Typography>
@@ -167,8 +173,8 @@ const Footer: React.FC = () => {
                 </Box>
               ))}
             </Box>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Container>
 
       {/* Bottom Bar */}

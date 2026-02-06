@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Box, Container, Typography, Button, IconButton, Grid, Divider, Chip } from '@mui/material';
+import { Box, Container, Typography, Button, IconButton, Divider, Chip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -89,9 +89,9 @@ const Cart: React.FC = () => {
         </Box>
       )}
 
-      <Grid container spacing={4}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
         {/* Cart Items */}
-        <Grid size={{ xs: 12, lg: 8 }}>
+        <Box sx={{ flex: { xs: '1 1 100%', lg: '1 1 60%' }, maxWidth: { lg: '65%' } }}>
           <Box sx={{ bgcolor: 'white', borderRadius: 2, overflow: 'hidden' }}>
             {items.map((item, index) => (
               <Box key={`${item.id}-${item.selectedSize}-${item.selectedColor}`}>
@@ -190,10 +190,10 @@ const Cart: React.FC = () => {
           >
             Continue Shopping
           </Button>
-        </Grid>
+        </Box>
 
         {/* Order Summary */}
-        <Grid size={{ xs: 12, lg: 4 }}>
+        <Box sx={{ flex: { xs: '1 1 100%', lg: '1 1 30%' }, maxWidth: { lg: '35%' } }}>
           <Box sx={{ bgcolor: 'white', borderRadius: 2, p: 3, position: 'sticky', top: 100 }}>
             <Typography variant="h6" fontWeight={700} sx={{ mb: 3 }}>Order Summary</Typography>
 
@@ -245,8 +245,8 @@ const Cart: React.FC = () => {
               </Box>
             </Box>
           </Box>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Container>
   );
 };

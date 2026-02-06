@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Container, Grid, Typography } from '@mui/material';
+import { Box, Container, Typography } from '@mui/material';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import HttpsOutlinedIcon from '@mui/icons-material/HttpsOutlined';
 import HeadphonesOutlinedIcon from '@mui/icons-material/HeadphonesOutlined';
@@ -32,25 +32,40 @@ const Features: React.FC = () => {
   return (
     <Box sx={{ py: 8, bgcolor: '#f9f9f9', borderTop: '1px solid #eee' }}>
       <Container maxWidth="xl">
-        <Grid container spacing={4}>
-            {features.map((feature) => (
-                <Grid key={feature.title} size={{ xs: 12, sm: 6, md: 3 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: { xs: 'center', md: 'flex-start' } }}>
-                        <Box sx={{ color: '#D5A249' }}>
-                            {feature.icon}
-                        </Box>
-                        <Box>
-                             <Typography variant="subtitle1" fontWeight={700}>
-                                {feature.title}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                {feature.description}
-                            </Typography>
-                        </Box>
-                    </Box>
-                </Grid>
-            ))}
-        </Grid>
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            flexWrap: 'wrap', 
+            gap: { xs: 3, md: 4 },
+            justifyContent: 'center'
+          }}
+        >
+          {features.map((feature) => (
+            <Box 
+              key={feature.title}
+              sx={{ 
+                flex: { xs: '1 1 100%', sm: '1 1 45%', md: '1 1 22%' },
+                maxWidth: { xs: '100%', sm: '48%', md: '24%' },
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 2, 
+                justifyContent: { xs: 'center', md: 'flex-start' } 
+              }}
+            >
+              <Box sx={{ color: '#D5A249' }}>
+                {feature.icon}
+              </Box>
+              <Box>
+                <Typography variant="subtitle1" fontWeight={700}>
+                  {feature.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {feature.description}
+                </Typography>
+              </Box>
+            </Box>
+          ))}
+        </Box>
       </Container>
     </Box>
   );

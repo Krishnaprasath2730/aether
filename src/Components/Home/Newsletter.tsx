@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Container, Typography, TextField, Button, Snackbar, Alert, Grid } from '@mui/material';
+import { Box, Container, Typography, TextField, Button, Snackbar, Alert } from '@mui/material';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import CardGiftcardOutlinedIcon from '@mui/icons-material/CardGiftcardOutlined';
 import VerifiedOutlinedIcon from '@mui/icons-material/VerifiedOutlined';
@@ -64,45 +64,54 @@ const Newsletter: React.FC = () => {
 
       <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
         {/* Benefits Bar */}
-        <Grid container spacing={4} sx={{ mb: 10 }}>
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            flexWrap: 'wrap', 
+            gap: { xs: 2, md: 4 }, 
+            mb: 10,
+            justifyContent: 'center'
+          }}
+        >
           {benefits.map((benefit, index) => (
-            <Grid key={index} size={{ xs: 6, md: 3 }}>
-              <Box 
-                sx={{ 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  alignItems: 'center', 
-                  textAlign: 'center',
-                  gap: 1.5,
-                  p: 3,
-                  borderRadius: 3,
-                  transition: 'all 0.3s',
-                  '&:hover': {
-                    bgcolor: 'white',
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.08)'
-                  }
-                }}
-              >
-                <Box sx={{ 
-                  width: 60, 
-                  height: 60, 
-                  borderRadius: '50%', 
-                  bgcolor: '#D5A249',
-                  color: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  {benefit.icon}
-                </Box>
-                <Box>
-                  <Typography variant="subtitle2" fontWeight={700}>{benefit.title}</Typography>
-                  <Typography variant="caption" color="text.secondary">{benefit.desc}</Typography>
-                </Box>
+            <Box 
+              key={index}
+              sx={{ 
+                flex: { xs: '1 1 45%', md: '1 1 20%' },
+                maxWidth: { xs: '45%', md: '24%' },
+                display: 'flex', 
+                flexDirection: 'column',
+                alignItems: 'center', 
+                textAlign: 'center',
+                gap: 1.5,
+                p: 3,
+                borderRadius: 3,
+                transition: 'all 0.3s',
+                '&:hover': {
+                  bgcolor: 'white',
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.08)'
+                }
+              }}
+            >
+              <Box sx={{ 
+                width: 60, 
+                height: 60, 
+                borderRadius: '50%', 
+                bgcolor: '#D5A249',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {benefit.icon}
               </Box>
-            </Grid>
+              <Box>
+                <Typography variant="subtitle2" fontWeight={700}>{benefit.title}</Typography>
+                <Typography variant="caption" color="text.secondary">{benefit.desc}</Typography>
+              </Box>
+            </Box>
           ))}
-        </Grid>
+        </Box>
 
         {/* Newsletter Form */}
         <Box sx={{ textAlign: 'center', maxWidth: 700, mx: 'auto' }}>

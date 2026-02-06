@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Box, Container, Typography, Grid, Chip, TextField, InputAdornment, MenuItem, Select, FormControl, InputLabel, Slider, Drawer, IconButton, Button, Pagination } from '@mui/material';
+import { Box, Container, Typography, Chip, TextField, InputAdornment, MenuItem, Select, FormControl, InputLabel, Slider, Drawer, IconButton, Button, Pagination } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -232,16 +232,22 @@ const Shop: React.FC = () => {
           </Box>
         </Box>
 
-        <Grid container spacing={4}>
+        <Box sx={{ display: 'flex', gap: 4 }}>
           {/* Sidebar Filters (Desktop) */}
-          <Grid size={{ xs: 12, md: 3 }} sx={{ display: { xs: 'none', md: 'block' } }}>
+          <Box 
+            sx={{ 
+              width: { xs: '100%', md: 280 }, 
+              flexShrink: 0,
+              display: { xs: 'none', md: 'block' } 
+            }}
+          >
             <Box sx={{ bgcolor: 'white', p: 3, borderRadius: 2, position: 'sticky', top: 100 }}>
               <FilterContent />
             </Box>
-          </Grid>
+          </Box>
 
           {/* Product Grid */}
-          <Grid size={{ xs: 12, md: 9 }}>
+          <Box sx={{ flex: 1 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="body2" color="text.secondary">
                 Showing {paginatedProducts.length} of {filteredProducts.length} products
@@ -255,13 +261,25 @@ const Shop: React.FC = () => {
             
             {paginatedProducts.length > 0 ? (
               <>
-                <Grid container spacing={3}>
+                <Box 
+                  sx={{ 
+                    display: 'flex', 
+                    flexWrap: 'wrap', 
+                    gap: 3 
+                  }}
+                >
                   {paginatedProducts.map(product => (
-                    <Grid key={product.id} size={{ xs: 6, sm: 4, lg: 3 }}>
+                    <Box 
+                      key={product.id}
+                      sx={{ 
+                        flex: { xs: '1 1 45%', sm: '1 1 30%', lg: '1 1 22%' },
+                        maxWidth: { xs: '48%', sm: '32%', lg: '24%' }
+                      }}
+                    >
                       <ProductCard {...product} />
-                    </Grid>
+                    </Box>
                   ))}
-                </Grid>
+                </Box>
                 
                 {/* Pagination */}
                 {totalPages > 1 && (
@@ -290,8 +308,8 @@ const Shop: React.FC = () => {
                 </Button>
               </Box>
             )}
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Container>
 
       {/* Mobile Filters Drawer */}

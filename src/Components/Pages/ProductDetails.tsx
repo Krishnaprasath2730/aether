@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Box, Container, Typography, Button, Grid, Chip, IconButton, Breadcrumbs, Snackbar, Alert, Skeleton, Tabs, Tab } from '@mui/material';
+import { Box, Container, Typography, Button, Chip, IconButton, Breadcrumbs, Snackbar, Alert, Skeleton, Tabs, Tab } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -57,17 +57,17 @@ const ProductDetails: React.FC = () => {
   if (isLoading) {
     return (
       <Container maxWidth="xl" sx={{ py: 6 }}>
-        <Grid container spacing={6}>
-          <Grid size={{ xs: 12, md: 6 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 45%' } }}>
             <Skeleton variant="rectangular" height={600} sx={{ borderRadius: 2 }} />
-          </Grid>
-          <Grid size={{ xs: 12, md: 6 }}>
+          </Box>
+          <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 45%' } }}>
             <Skeleton variant="text" width={100} height={30} />
             <Skeleton variant="text" width="80%" height={60} />
             <Skeleton variant="text" width={150} height={50} />
             <Skeleton variant="text" width="100%" height={100} sx={{ mt: 2 }} />
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Container>
     );
   }
@@ -162,9 +162,9 @@ const ProductDetails: React.FC = () => {
           <Typography color="text.primary">{product.name}</Typography>
         </Breadcrumbs>
 
-        <Grid container spacing={6}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {/* Product Image */}
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 45%' }, maxWidth: { md: '50%' } }}>
             <Box 
               sx={{ 
                 position: 'relative',
@@ -216,10 +216,10 @@ const ProductDetails: React.FC = () => {
                 </Box>
               )}
             </Box>
-          </Grid>
+          </Box>
 
           {/* Product Info */}
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 45%' }, maxWidth: { md: '50%' } }}>
             <Box sx={{ position: 'sticky', top: 100 }}>
               <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: 2 }}>
                 {product.category}
@@ -382,8 +382,8 @@ const ProductDetails: React.FC = () => {
                 </Box>
               </Box>
             </Box>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         {/* Product Details Tabs */}
         <Box sx={{ mt: 8, borderTop: '1px solid #eee', pt: 4 }}>
@@ -428,13 +428,19 @@ const ProductDetails: React.FC = () => {
         {relatedProducts.length > 0 && (
           <Box sx={{ mt: 10 }}>
             <Typography variant="h4" fontWeight={800} sx={{ mb: 4 }}>You May Also Like</Typography>
-            <Grid container spacing={3}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
               {relatedProducts.map(p => (
-                <Grid key={p.id} size={{ xs: 6, sm: 4, md: 3 }}>
+                <Box 
+                  key={p.id}
+                  sx={{ 
+                    flex: { xs: '1 1 45%', sm: '1 1 30%', md: '1 1 22%' },
+                    maxWidth: { xs: '48%', sm: '32%', md: '24%' }
+                  }}
+                >
                   <ProductCard {...p} />
-                </Grid>
+                </Box>
               ))}
-            </Grid>
+            </Box>
           </Box>
         )}
       </Container>

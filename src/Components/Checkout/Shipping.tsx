@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Container, Typography, TextField, Button, Grid, Stepper, Step, StepLabel, FormControlLabel, Checkbox, Radio, RadioGroup, Alert } from '@mui/material';
+import { Box, Container, Typography, TextField, Button, Stepper, Step, StepLabel, FormControlLabel, Checkbox, Radio, RadioGroup, Alert } from '@mui/material';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import { useCart } from '../../context/CartContext';
 import { useCheckout, type ShippingInfo } from '../../context/CheckoutContext';
@@ -123,14 +123,14 @@ const Shipping: React.FC = () => {
         <Step><StepLabel>Payment</StepLabel></Step>
       </Stepper>
 
-      <Grid container spacing={6}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
         {/* Shipping Form */}
-        <Grid size={{ xs: 12, md: 8 }}>
+        <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 60%' }, maxWidth: { md: '65%' } }}>
           <Box component="form" onSubmit={handleSubmit} noValidate>
             <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>Contact Information</Typography>
             
-            <Grid container spacing={2} sx={{ mb: 4 }}>
-              <Grid size={{ xs: 12, sm: 6 }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 4 }}>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 45%' } }}>
                 <TextField
                   fullWidth
                   required
@@ -141,8 +141,8 @@ const Shipping: React.FC = () => {
                   error={!!errors.firstName}
                   helperText={errors.firstName}
                 />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 45%' } }}>
                 <TextField
                   fullWidth
                   required
@@ -153,8 +153,8 @@ const Shipping: React.FC = () => {
                   error={!!errors.lastName}
                   helperText={errors.lastName}
                 />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 45%' } }}>
                 <TextField
                   fullWidth
                   required
@@ -167,8 +167,8 @@ const Shipping: React.FC = () => {
                   helperText={errors.email}
                   placeholder="you@example.com"
                 />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 45%' } }}>
                 <TextField
                   fullWidth
                   required
@@ -180,13 +180,13 @@ const Shipping: React.FC = () => {
                   helperText={errors.phone}
                   placeholder="(555) 123-4567"
                 />
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
 
             <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>Shipping Address</Typography>
             
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12 }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+              <Box sx={{ flex: '1 1 100%' }}>
                 <TextField
                   fullWidth
                   required
@@ -198,8 +198,8 @@ const Shipping: React.FC = () => {
                   helperText={errors.address}
                   placeholder="123 Main Street"
                 />
-              </Grid>
-              <Grid size={{ xs: 12 }}>
+              </Box>
+              <Box sx={{ flex: '1 1 100%' }}>
                 <TextField
                   fullWidth
                   label="Apartment, suite, etc. (optional)"
@@ -208,8 +208,8 @@ const Shipping: React.FC = () => {
                   onChange={handleChange}
                   placeholder="Apt 4B"
                 />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 4 }}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 30%' } }}>
                 <TextField
                   fullWidth
                   required
@@ -220,8 +220,8 @@ const Shipping: React.FC = () => {
                   error={!!errors.city}
                   helperText={errors.city}
                 />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 4 }}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 30%' } }}>
                 <TextField
                   fullWidth
                   required
@@ -232,8 +232,8 @@ const Shipping: React.FC = () => {
                   error={!!errors.state}
                   helperText={errors.state}
                 />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 4 }}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 30%' } }}>
                 <TextField
                   fullWidth
                   required
@@ -245,8 +245,8 @@ const Shipping: React.FC = () => {
                   helperText={errors.zipCode}
                   placeholder="12345"
                 />
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
 
             <FormControlLabel
               control={
@@ -326,10 +326,10 @@ const Shipping: React.FC = () => {
               </Button>
             </Box>
           </Box>
-        </Grid>
+        </Box>
 
         {/* Order Summary */}
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 30%' }, maxWidth: { md: '35%' } }}>
           <Box sx={{ bgcolor: '#f9f9f9', borderRadius: 2, p: 3, position: 'sticky', top: 100 }}>
             <Typography variant="h6" fontWeight={700} sx={{ mb: 3 }}>Order Summary</Typography>
             
@@ -377,8 +377,8 @@ const Shipping: React.FC = () => {
               <Typography variant="h6" fontWeight={700}>${(totalPrice + shippingCost).toFixed(2)}</Typography>
             </Box>
           </Box>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Container>
   );
 };
