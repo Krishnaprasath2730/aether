@@ -1,11 +1,19 @@
 import { WebSocketServer, WebSocket } from 'ws';
+import http from 'http';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 8080;
 
-const wss = new WebSocketServer({ port: PORT });
+// Create HTTP server for health checks (required by some deployment platforms)
+const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Aether WebSocket Server Running');
+});
+
+// Attach WebSocket server to HTTP server
+const wss = new WebSocketServer({ server });
 
 interface Client {
     ws: WebSocket;
@@ -15,7 +23,9 @@ interface Client {
 
 const clients = new Map<WebSocket, Client>();
 
-console.log(`Signaling server running on port ${PORT}`);
+server.listen(PORT, () => {
+    console.log(`Signaling server running on port ${PORT}`);
+});
 
 wss.on('connection', (ws) => {
     console.log('New client connected');
@@ -34,12 +44,8 @@ wss.on('connection', (ws) => {
                     break;
 
                 case 'JOIN_SESSION':
-                    // Check if session exists (basic check: simply assign them to it)
-                    // In a real app, we'd check if a host exists for this ID.
                     clients.set(ws, { ws, sessionId, role: 'guest' });
                     ws.send(JSON.stringify({ type: 'SESSION_JOINED', sessionId, role: 'guest' }));
-
-                    // Notify Host
                     broadcastToSession(sessionId, { type: 'GUEST_JOINED' }, ws);
                     console.log(`Client joined session: ${sessionId}`);
                     break;
@@ -50,7 +56,6 @@ wss.on('connection', (ws) => {
                 case 'CLICK':
                 case 'INPUT':
                 case 'PRIVACY_TOGGLE':
-                    // Relay to others in the session
                     if (sessionId) {
                         broadcastToSession(sessionId, { type, payload }, ws);
                     }
