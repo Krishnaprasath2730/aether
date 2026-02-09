@@ -7,33 +7,44 @@ interface PrivacyOverlayProps {
   message?: string;
 }
 
-const PrivacyOverlay: React.FC<PrivacyOverlayProps> = ({ isVisible, message = "Host is viewing a private page" }) => {
+const PrivacyOverlay: React.FC<PrivacyOverlayProps> = ({ isVisible, message = "Partner is in a private area" }) => {
   return (
     <Backdrop
       sx={{ 
         color: '#fff', 
-        zIndex: (theme) => theme.zIndex.drawer + 9999, // Super high z-index
-        backdropFilter: 'blur(20px)',
-        backgroundColor: 'rgba(0,0,0,0.8)',
+        zIndex: (theme) => theme.zIndex.drawer + 9999,
+        backdropFilter: 'blur(15px)',
+        backgroundColor: 'rgba(255,255,255,0.7)', // Light theme blur
         flexDirection: 'column',
         gap: 3
       }}
       open={isVisible}
     >
-        <Box sx={{ p: 4, bgcolor: '#1a1a1a', borderRadius: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '400px', textAlign: 'center', border: '1px solid #333' }}>
-            <Box sx={{ p: 2, bgcolor: 'rgba(108, 93, 211, 0.1)', borderRadius: '50%', mb: 2 }}>
-                <HttpsIcon sx={{ fontSize: 40, color: '#6C5DD3' }} />
+        <Box sx={{ 
+            p: 5, 
+            bgcolor: 'white', 
+            borderRadius: 6, 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            maxWidth: '400px', 
+            textAlign: 'center', 
+            boxShadow: '0 20px 60px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(233,30,99,0.1)'
+        }}>
+            <Box sx={{ p: 2, bgcolor: 'rgba(233, 30, 99, 0.05)', borderRadius: '50%', mb: 2 }}>
+                <HttpsIcon sx={{ fontSize: 40, color: '#E91E63' }} /> {/* Pink Lock */}
             </Box>
-            <Typography variant="h5" fontWeight={700} sx={{ color: 'white' }}>
-                Private Session Paused
+            <Typography variant="h5" fontWeight={700} sx={{ color: '#333', fontFamily: '"Playfair Display", serif' }}>
+                Private Moment 🙈
             </Typography>
-            <Typography variant="body1" sx={{ color: '#888', mt: 1 }}>
-                {message}
+            <Typography variant="body1" sx={{ color: '#666', mt: 1 }}>
+                {message || "Your partner is viewing a private page."}
             </Typography>
-            <Typography variant="caption" sx={{ color: '#555', mt: 3 }}>
-                Screen sharing is automatically suppressed for privacy theme.
+            <Typography variant="body2" sx={{ color: '#E91E63', mt: 3, fontWeight: 500 }}>
+                Waiting for them to return...
             </Typography>
-            <CircularProgress size={20} sx={{ mt: 2, color: '#6C5DD3' }} />
+            <CircularProgress size={24} sx={{ mt: 2, color: '#E91E63' }} />
         </Box>
     </Backdrop>
   );

@@ -15,7 +15,7 @@ const SplitBanner: React.FC = () => {
               display: 'flex', 
               alignItems: 'center', 
               px: { xs: 4, md: 8 },
-              backgroundImage: 'url(https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=80&w=1000&auto=format&fit=crop)',
+              backgroundImage: 'url(https://images.unsplash.com/photo-1495385794356-15371f348c31?q=80&w=1000&auto=format&fit=crop)',
               backgroundSize: 'cover',
               backgroundPosition: 'right center'
             }}
@@ -51,7 +51,7 @@ const SplitBanner: React.FC = () => {
               justifyContent: 'flex-end',
               textAlign: 'right',
               px: { xs: 4, md: 8 },
-              backgroundImage: 'url(https://images.unsplash.com/photo-1551488852-d8042973789b?q=80&w=1000&auto=format&fit=crop)',
+              backgroundImage: 'url(https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=1000&auto=format&fit=crop)',
               backgroundSize: 'cover',
               backgroundPosition: 'left center'
             }}

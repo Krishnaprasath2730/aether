@@ -24,7 +24,6 @@ const Navbar: React.FC = () => {
     { name: 'WOMEN\'S', path: '/shop?category=Women' },
     { name: 'MEN\'S', path: '/shop?category=Men' },
     { name: 'ACCESSORIES', path: '/shop?category=Accessories' },
-    { name: 'PAGES', path: '/pages' }
   ];
 
   const handleSearch = (e: React.FormEvent) => {

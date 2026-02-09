@@ -39,7 +39,7 @@ export const products: Product[] = [
         name: 'Essential Knit Sweater',
         price: 129.00,
         category: 'Unisex',
-        image: 'https://images.unsplash.com/photo-1620799140408-ed5341cd7536?q=80&w=1974&auto=format&fit=crop',
+        image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=1000&auto=format&fit=crop',
         description: 'The perfect everyday essential. Made from ultra-soft organic cotton blend, this relaxed-fit sweater offers exceptional comfort without compromising on style.',
         sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
         colors: ['Oatmeal', 'Charcoal', 'Forest Green'],

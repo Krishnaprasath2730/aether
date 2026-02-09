@@ -1,23 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Button, Chip, Dialog, DialogTitle, DialogContent, TextField, DialogActions } from '@mui/material';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Box, Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Snackbar, Alert, IconButton } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCoBrowse } from './CoBrowseContext';
 import PrivacyOverlay from './PrivacyOverlay';
-import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import LinkIcon from '@mui/icons-material/Link';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CloseIcon from '@mui/icons-material/Close';
 
 const CoBrowseManager: React.FC = () => {
-    const { role, sessionId, status, createSession, joinSession, broadcast, lastEvent } = useCoBrowse();
+    const { role, sessionId, status, createSession, joinSession, endSession, broadcast, lastEvent } = useCoBrowse();
     const location = useLocation();
     const navigate = useNavigate();
     const [isPrivate, setIsPrivate] = useState(false);
     const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
+    const [endDialogOpen, setEndDialogOpen] = useState(false);
+    const [showCopySuccess, setShowCopySuccess] = useState(false);
     const [joinInputId, setJoinInputId] = useState('');
     const [remoteCursor, setRemoteCursor] = useState<{x: number, y: number} | null>(null);
+    const [flyingHearts, setFlyingHearts] = useState<{id: number, left: number, delay: number, emoji: string}[]>([]);
 
-    // Loop prevention flag
-    const isSilentUpdate = React.useRef(false);
-
+    // ... (keep existing code up to handleJoin) ...
+    
     // Privacy Logic: Check URL
     useEffect(() => {
         const privatePaths = ['/checkout', '/account', '/profile'];
@@ -55,6 +58,22 @@ const CoBrowseManager: React.FC = () => {
         }
         return path.join(' > ');
     };
+
+    // Helper to spawn hearts/emojis
+    const spawnHearts = useCallback(() => {
+        const emojis = ['😍', '😘', '💕', '❤️'];
+        const newHearts = Array.from({ length: 15 }).map((_, i) => ({
+            id: Date.now() + i,
+            left: Math.random() * 100 - 50,
+            delay: Math.random() * 0.8,
+            emoji: emojis[Math.floor(Math.random() * emojis.length)]
+        }));
+        setFlyingHearts(prev => [...prev, ...newHearts]);
+        
+        setTimeout(() => {
+            setFlyingHearts(prev => prev.filter(h => !newHearts.find(nh => nh.id === h.id)));
+        }, 2500);
+    }, []);
 
     // Inbound Events (Listen)
     useEffect(() => {
@@ -127,12 +146,24 @@ const CoBrowseManager: React.FC = () => {
              setRemoteCursor({ x: lastEvent.payload.x, y: lastEvent.payload.y });
         }
 
-    }, [lastEvent, role, navigate, location.pathname]);
+        if (lastEvent.type === 'PEER_DISCONNECTED') {
+             setRemoteCursor(null);
+             // Optional: Show a message that partner left?
+             // alert("Partner disconnected");
+        }
+
+        // Trigger hearts on join
+        if (lastEvent.type === 'SESSION_JOINED' || lastEvent.type === 'GUEST_JOINED') {
+             spawnHearts();
+        }
+
+    }, [lastEvent, role, navigate, location.pathname, spawnHearts]);
 
     // Outbound Events (Broadcast)
     useEffect(() => {
         if (!sessionId) return; 
-
+        
+        // ... (keep outbound logic)
         // Navigation Broadcast
         const privatePaths = ['/checkout', '/account', '/profile'];
         const isTargetPrivate = privatePaths.some(path => location.pathname.includes(path));
@@ -170,18 +201,12 @@ const CoBrowseManager: React.FC = () => {
              if (target.closest && (target.closest('.MuiDialog-root') || target.closest('.MuiChip-root'))) return;
 
              const selector = getCssSelector(target);
-             console.log("Broadcasting Click:", selector);
-             
              broadcast('CLICK', { 
                  selector, 
                  x: e.pageX, 
                  y: e.pageY 
              });
         };
-
-        // Scroll Broadcast
-        let timeout: ReturnType<typeof setTimeout>;
-        let cursorTimeout: ReturnType<typeof setTimeout>;
 
         const handleScroll = () => {
              if (timeout || isSilentUpdate.current) return;
@@ -198,6 +223,9 @@ const CoBrowseManager: React.FC = () => {
                 cursorTimeout = null!;
             }, 30);
         };
+        
+        let timeout: ReturnType<typeof setTimeout>;
+        let cursorTimeout: ReturnType<typeof setTimeout>;
 
         window.addEventListener('click', handleClick, true);
         window.addEventListener('input', handleInput, true); 
@@ -221,106 +249,171 @@ const CoBrowseManager: React.FC = () => {
         }
     };
 
+    const handleCopy = () => {
+        if (sessionId) {
+            navigator.clipboard.writeText(sessionId);
+            setShowCopySuccess(true);
+            spawnHearts();
+        }
+    };
+
+    const handleEndSession = () => {
+        endSession();
+        setRemoteCursor(null);
+        setEndDialogOpen(false);
+    };
+    
+    // Loop prevention flag
+    const isSilentUpdate = React.useRef(false);
+
+    // Couples Theme Colors
+    const themeColor = '#E91E63'; // Pink/Rose
+    const glassStyle = {
+        background: 'rgba(255, 255, 255, 0.8)',
+        backdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255, 255, 255, 0.3)',
+        boxShadow: '0 8px 32px rgba(233, 30, 99, 0.15)',
+    };
+
     return (
         <>
             {/* Privacy Overlay for Guests */}
             <PrivacyOverlay isVisible={role === 'guest' && isPrivate} />
 
-            {/* Remote Cursor */}
-            {remoteCursor && !isPrivate && (
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        left: remoteCursor.x,
-                        top: remoteCursor.y,
-                        width: 12,
-                        height: 12,
-                        bgcolor: role === 'host' ? '#FF5722' : '#6C5DD3', // Diff colors for diff roles
-                        borderRadius: '50%',
-                        pointerEvents: 'none',
-                        zIndex: 9999,
-                        transform: 'translate(-50%, -50%)',
-                        boxShadow: '0 0 10px rgba(0,0,0,0.3)',
-                        transition: 'top 0.1s linear, left 0.1s linear'
-                    }}
-                >
-                     <Box 
-                        sx={{ 
-                            position: 'absolute', 
-                            top: 14, 
-                            left: 14, 
-                            bgcolor: '#2C2C2C', 
-                            color: 'white', 
-                            px: 1, 
-                            py: 0.5, 
-                            borderRadius: 1, 
-                            fontSize: '0.75rem',
-                            whiteSpace: 'nowrap'
-                        }}
-                    >
-                        {role === 'host' ? 'Guest' : 'Host'}
+            {/* Remote Partner Cursor (Heart Style) */}
+            {remoteCursor && sessionId && !isPrivate && (
+                <Box sx={{
+                    position: 'absolute',
+                    left: remoteCursor.x,
+                    top: remoteCursor.y,
+                    pointerEvents: 'none',
+                    zIndex: 9999,
+                    transform: 'translate(-50%, -50%)',
+                    transition: 'top 0.1s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.1s cubic-bezier(0.2, 0.8, 0.2, 1)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center'
+                }}>
+                    <Box sx={{ 
+                        filter: 'drop-shadow(0 2px 4px rgba(233,30,99,0.3))',
+                        animation: 'pulse 1.5s infinite ease-in-out',
+                        '@keyframes pulse': { '0%': { transform: 'scale(1)' }, '50%': { transform: 'scale(1.1)' }, '100%': { transform: 'scale(1)' } }
+                    }}>
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill={themeColor}>
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                    </Box>
+                    <Box sx={{ mt: 0.5, bgcolor: themeColor, color: 'white', px: 1.5, py: 0.5, borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(233,30,99,0.2)' }}>
+                        {role === 'host' ? 'Partner (Invited)' : 'Partner (Host)'}
                     </Box>
                 </Box>
             )}
 
-            {/* Floating Control Panel */}
-            <Box sx={{ position: 'fixed', bottom: 20, right: 20, zIndex: 1300, display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'end' }}>
-                <Chip 
-                    label={`Status: ${status}`} 
-                    size="small" 
-                    color={status === 'connected' ? 'success' : status === 'connecting' ? 'warning' : 'default'} 
-                    sx={{ bgcolor: 'white', fontWeight: 600 }}
-                />
-                
-                {sessionId ? (
-                    <Chip 
-                        icon={<SupervisorAccountIcon />} 
-                        label={`${role === 'host' ? 'Hosting' : 'Guest'} Session: ${sessionId}`} 
-                        color="primary" 
-                        onDelete={() => { navigator.clipboard.writeText(sessionId); alert('Session ID copied!'); }}
-                    />
-                ) : (
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Button 
-                            variant="contained" 
-                            startIcon={<SupervisorAccountIcon />} 
-                            disabled={status === 'connecting'}
-                            onClick={createSession}
-                            sx={{ borderRadius: 20, bgcolor: '#2C2C2C' }}
+            {/* Floating Couples Dock */}
+            <Box sx={{ position: 'fixed', bottom: 30, right: 30, zIndex: 1300, display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'end' }}>
+                {sessionId && (
+                    <Box sx={{ 
+                        ...glassStyle,
+                        px: 2, py: 1, borderRadius: '20px', display: 'flex', alignItems: 'center', gap: 1.5,
+                        animation: 'slideUp 0.3s ease-out',
+                        '@keyframes slideUp': { from: { opacity: 0, transform: 'translateY(20px)' }, to: { opacity: 1, transform: 'translateY(0)' } }
+                    }}>
+                        <Box sx={{ position: 'relative' }}>
+                            <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: status === 'connected' ? '#4CAF50' : '#FFC107', boxShadow: `0 0 0 4px ${status === 'connected' ? 'rgba(76,175,80,0.2)' : 'rgba(255,193,7,0.2)'}` }} />
+                        </Box>
+                        <Box>
+                            <Box sx={{ fontSize: '0.75rem', color: '#666', fontWeight: 500 }}>
+                                {role === 'host' ? 'Hosting Date Night' : 'Joined Date Night'}
+                            </Box>
+                            <Box sx={{ fontSize: '0.65rem', color: '#999', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 0.5, position: 'relative', '&:hover': { color: themeColor } }} 
+                                 onClick={handleCopy}>
+                                <span>ID: {sessionId}</span>
+                                <ContentCopyIcon sx={{ fontSize: 12 }} />
+                                
+                                {flyingHearts.map(h => (
+                                    <Box key={h.id} sx={{
+                                        position: 'absolute', left: '50%', bottom: '100%', ml: `${h.left}px`,
+                                        opacity: 0, fontSize: '1.2rem', pointerEvents: 'none',
+                                        animation: `flyUp 1s ease-out forwards ${h.delay}s`,
+                                        '@keyframes flyUp': { '0%': { transform: 'translateY(0) scale(0.5)', opacity: 1 }, '100%': { transform: 'translateY(-100px) scale(1.5)', opacity: 0 } }
+                                    }}>{h.emoji}</Box>
+                                ))}
+                            </Box>
+                        </Box>
+                        <IconButton size="small" onClick={() => setEndDialogOpen(true)} sx={{ ml: 1, color: '#999', '&:hover': { color: 'red', bgcolor: 'rgba(255,0,0,0.1)' } }}>
+                            <CloseIcon fontSize="small" />
+                        </IconButton>
+                    </Box>
+                )}
+
+                {!sessionId && (
+                    <Box sx={{ display: 'flex', gap: 2 }}>
+                         <Button variant="contained" onClick={() => setIsJoinDialogOpen(true)}
+                            sx={{ ...glassStyle, background: 'white', color: '#333', borderRadius: '30px', px: 3, py: 1.5, textTransform: 'none', fontWeight: 600, '&:hover': { background: '#f5f5f5' } }}
+                            startIcon={<LinkIcon />}
                         >
-                            Start Host
+                            Join Partner
                         </Button>
-                        <Button 
-                            variant="outlined" 
-                            startIcon={<LinkIcon />} 
-                            disabled={status === 'connecting'}
-                            onClick={() => setIsJoinDialogOpen(true)}
-                            sx={{ borderRadius: 20, bgcolor: 'white', color: '#2C2C2C', borderColor: '#2C2C2C' }}
+                        <Button variant="contained" onClick={createSession} disabled={status === 'connecting'}
+                            sx={{ bgcolor: themeColor, color: 'white', borderRadius: '30px', px: 3, py: 1.5, textTransform: 'none', fontWeight: 600, boxShadow: '0 8px 20px rgba(233,30,99,0.3)', '&:hover': { bgcolor: '#D81B60' }, display: 'flex', gap: 1 }}
                         >
-                            Join
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            Shop Together
                         </Button>
                     </Box>
                 )}
             </Box>
 
-            {/* Join Session Dialog */}
-            <Dialog open={isJoinDialogOpen} onClose={() => setIsJoinDialogOpen(false)}>
-                <DialogTitle>Join Co-Browsing Session</DialogTitle>
+            {/* Copy Success Snackbar */}
+            <Snackbar
+                open={showCopySuccess}
+                autoHideDuration={4000}
+                onClose={() => setShowCopySuccess(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert 
+                    onClose={() => setShowCopySuccess(false)} 
+                    icon={<span style={{ fontSize: '1.2rem' }}>💌</span>}
+                    sx={{ 
+                        width: '100%', 
+                        bgcolor: 'white', 
+                        color: '#333',
+                        fontWeight: 600,
+                        border: '1px solid rgba(233,30,99,0.2)',
+                        boxShadow: '0 8px 24px rgba(233,30,99,0.15)',
+                        '& .MuiAlert-icon': { mr: 1.5 }
+                    }}
+                >
+                    <Box component="span" sx={{ color: themeColor }}>Code Copied!</Box> Share it with your partner ❤️
+                </Alert>
+            </Snackbar>
+
+            <Dialog open={endDialogOpen} onClose={() => setEndDialogOpen(false)} PaperProps={{ sx: { borderRadius: 4, textAlign: 'center', p: 1 } }}>
+                <DialogTitle sx={{ fontSize: '2rem' }}>😩</DialogTitle>
                 <DialogContent>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="Session ID"
-                        fullWidth
-                        variant="outlined"
-                        value={joinInputId}
-                        onChange={(e) => setJoinInputId(e.target.value)}
-                        placeholder="Paste Session ID here..."
+                    <Box sx={{ fontSize: '1.1rem', fontWeight: 600, mb: 1 }}>Ending Date Night?</Box>
+                    <Box sx={{ color: '#666' }}>Are you sure you want to stop shopping together?</Box>
+                </DialogContent>
+                <DialogActions sx={{ justifyContent: 'center', pb: 2 }}>
+                    <Button onClick={() => setEndDialogOpen(false)} sx={{ color: '#666' }}>No, stay</Button>
+                    <Button onClick={handleEndSession} variant="contained" color="error" sx={{ borderRadius: 10 }}>End Session</Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={isJoinDialogOpen} onClose={() => setIsJoinDialogOpen(false)} PaperProps={{ sx: { borderRadius: 4, boxShadow: '0 20px 60px rgba(0,0,0,0.1)', maxWidth: 400 } }}>
+                <DialogTitle sx={{ textAlign: 'center', pt: 4 }}>
+                    <Box sx={{ color: themeColor, fontSize: '2rem', mb: 1 }}>❤️</Box>
+                    <Box sx={{ fontWeight: 700, fontFamily: '"Playfair Display", serif' }}>Join Your Partner</Box>
+                </DialogTitle>
+                <DialogContent>
+                    <Box sx={{ textAlign: 'center', color: '#666', mb: 3 }}>Enter the secret code shared by your partner to start shopping together.</Box>
+                    <TextField autoFocus fullWidth variant="outlined" value={joinInputId} onChange={(e) => setJoinInputId(e.target.value)} placeholder="Paste Date Night Code..."
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3, '&.Mui-focused fieldset': { borderColor: themeColor } } }}
                     />
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setIsJoinDialogOpen(false)}>Cancel</Button>
-                    <Button onClick={handleJoin} variant="contained" disabled={!joinInputId}>Join Session</Button>
+                <DialogActions sx={{ p: 3, justifyContent: 'center', gap: 2 }}>
+                    <Button onClick={() => setIsJoinDialogOpen(false)} sx={{ color: '#666' }}>Cancel</Button>
+                    <Button onClick={handleJoin} variant="contained" disabled={!joinInputId} sx={{ bgcolor: themeColor, borderRadius: 10, px: 4, '&:hover': { bgcolor: '#D81B60' } }}>Connect ❤️</Button>
                 </DialogActions>
             </Dialog>
         </>

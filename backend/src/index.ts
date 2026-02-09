@@ -56,6 +56,7 @@ wss.on('connection', (ws) => {
                 case 'CLICK':
                 case 'INPUT':
                 case 'PRIVACY_TOGGLE':
+                case 'SYNC_STATE':
                     if (sessionId) {
                         broadcastToSession(sessionId, { type, payload }, ws);
                     }

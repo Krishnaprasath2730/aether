@@ -1,65 +1,162 @@
 import React from 'react';
-import { Box, Container, Button } from '@mui/material';
+import { Box, Container, Typography, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const Categories: React.FC = () => {
   const navigate = useNavigate();
 
   const categories = [
     {
-      title: 'WOMENS',
-      image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1000&auto=format&fit=crop',
+      title: 'WOMEN',
+      subtitle: 'NEW COLLECTION',
+      image: 'https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?q=80&w=1000&auto=format&fit=crop',
       link: '/shop?category=Women'
     },
     {
-      title: 'MENS',
-      image: 'https://images.unsplash.com/photo-1617137968427-85924c809a29?q=80&w=1000&auto=format&fit=crop',
+      title: 'MEN',
+      subtitle: 'ESSENTIALS',
+      image:' https://i.pinimg.com/1200x/53/29/2a/53292afc709e42ee45061d4a21939540.jpg',
       link: '/shop?category=Men'
     },
     {
       title: 'ACCESSORIES',
-      image: 'https://images.unsplash.com/photo-1576053139778-7e32f2ae3cfd?q=80&w=1000&auto=format&fit=crop',
+      subtitle: 'FINISHING TOUCHES',
+      image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1000&auto=format&fit=crop',
       link: '/shop?category=Accessories'
     }
   ];
 
   return (
-    <Box sx={{ py: 8 }}>
+    <Box sx={{ py: 10, bgcolor: 'white' }}>
       <Container maxWidth="xl">
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, justifyContent: 'center' }}>
-          {categories.map((cat) => (
+        <Typography 
+            variant="h2" 
+            align="center" 
+            sx={{ 
+                mb: 6, 
+                fontFamily: '"Playfair Display", serif', 
+                fontSize: { xs: '2rem', md: '3rem' },
+                fontWeight: 500,
+                letterSpacing: '-0.02em'
+            }}
+        >
+            Shop by Category
+        </Typography>
+
+        <Box 
+          component={motion.div}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          sx={{ display: 'flex', flexWrap: 'wrap', gap: 4, justifyContent: 'center' }}
+        >
+          {categories.map((cat, index) => (
             <Box 
               key={cat.title}
+              component={motion.div}
+              whileHover="hover"
+              initial="rest"
+              onClick={() => navigate(cat.link)}
               sx={{ 
-                flex: { xs: '1 1 100%', sm: '1 1 30%' },
+                flex: { xs: '1 1 100%', md: '1 1 30%' },
                 position: 'relative',
-                height: 300,
-                backgroundImage: `url(${cat.image})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                display: 'flex',
-                alignItems: 'end',
-                justifyContent: 'center',
-                pb: 4
+                height: { xs: 400, md: 600 },
+                overflow: 'hidden',
+                cursor: 'pointer',
+                bgcolor: '#f5f5f5',
+                '&:hover .bg-image': { transform: 'scale(1.1)' }
               }}
             >
-              <Button
-                onClick={() => navigate(cat.link)}
-                sx={{
-                  bgcolor: 'white',
-                  color: 'black',
-                  px: 4,
-                  py: 1.5,
-                  borderRadius: 0,
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  letterSpacing: 2,
-                  boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-                  '&:hover': { bgcolor: '#f5f5f5' }
-                }}
-              >
-                {cat.title}
-              </Button>
+                {/* Background Image */}
+                <Box
+                    className="bg-image"
+                    sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        backgroundImage: `url(${cat.image})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        transition: 'transform 0.8s cubic-bezier(0.19, 1, 0.22, 1)',
+                    }}
+                />
+
+                {/* Overlay */}
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 60%)',
+                        transition: 'background 0.3s ease'
+                    }}
+                />
+
+                {/* Content */}
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        width: '100%',
+                        p: 6,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        color: 'white',
+                        textAlign: 'center'
+                    }}
+                >
+                    <Typography 
+                        variant="caption" 
+                        component={motion.div}
+                        variants={{ rest: { y: 0, opacity: 0.8 }, hover: { y: -10, opacity: 1 } }}
+                        sx={{ letterSpacing: '0.2em', mb: 1, textTransform: 'uppercase', fontWeight: 600 }}
+                    >
+                        {cat.subtitle}
+                    </Typography>
+                    
+                    <Typography 
+                        variant="h3" 
+                        component={motion.h3}
+                        variants={{ rest: { y: 0 }, hover: { y: -10 } }}
+                        sx={{ 
+                            fontFamily: '"Playfair Display", serif',
+                            fontWeight: 500,
+                            letterSpacing: '0.05em',
+                            mb: 2
+                        }}
+                    >
+                        {cat.title}
+                    </Typography>
+
+                    <Button
+                        component={motion.button}
+                        variants={{ rest: { opacity: 0, y: 20 }, hover: { opacity: 1, y: 0 } }}
+                        transition={{ duration: 0.3 }}
+                        variant="contained"
+                        sx={{
+                            bgcolor: 'white',
+                            color: 'black',
+                            borderRadius: 0,
+                            px: 4,
+                            py: 1.5,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.1em',
+                            fontSize: '0.8rem',
+                            fontWeight: 600,
+                            '&:hover': { bgcolor: 'white', color: 'black' }
+                        }}
+                    >
+                        Explore
+                    </Button>
+                </Box>
             </Box>
           ))}
         </Box>

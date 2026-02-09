@@ -10,6 +10,7 @@ interface CoBrowseContextType {
   status: SessionStatus;
   createSession: () => void;
   joinSession: (id: string) => void;
+  endSession: () => void;
   broadcast: (type: string, payload?: any) => void;
   lastEvent: any;
 }
@@ -24,6 +25,7 @@ export const CoBrowseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const wsRef = useRef<WebSocket | null>(null);
 
   const connect = useCallback((): Promise<WebSocket> => {
+    // ... (existing code)
     return new Promise((resolve, reject) => {
         if (wsRef.current?.readyState === WebSocket.OPEN) {
             resolve(wsRef.current);
@@ -101,6 +103,17 @@ export const CoBrowseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [connect]);
 
+  const endSession = useCallback(() => {
+    if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+    }
+    setRole(null);
+    setSessionId(null);
+    setLastEvent(null);
+    setStatus('disconnected');
+  }, []);
+
   const broadcast = useCallback((type: string, payload?: any) => {
     if (wsRef.current?.readyState === WebSocket.OPEN && sessionId) {
         wsRef.current.send(JSON.stringify({ type, sessionId, payload }));
@@ -108,7 +121,7 @@ export const CoBrowseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [sessionId]);
 
   return (
-    <CoBrowseContext.Provider value={{ role, sessionId, status, createSession, joinSession, broadcast, lastEvent }}>
+    <CoBrowseContext.Provider value={{ role, sessionId, status, createSession, joinSession, endSession, broadcast, lastEvent }}>
       {children}
     </CoBrowseContext.Provider>
   );
