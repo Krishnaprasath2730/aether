@@ -3,8 +3,11 @@ import { Box, Typography, Container, Paper } from '@mui/material';
 import { Outlet, Link } from 'react-router-dom';
 import HttpsIcon from '@mui/icons-material/Https';
 import logo from '../../assets/logo.png';
+import { useTheme } from '../../context/ThemeContext';
 
 const CheckoutLayout: React.FC = () => {
+  const { isDarkMode } = useTheme();
+
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5', display: 'flex', flexDirection: 'column' }}>
       {/* Minimal Header */}
@@ -16,12 +19,16 @@ const CheckoutLayout: React.FC = () => {
                 component="img"
                 src={logo}
                 alt="Aether Logo"
-                sx={{ height: 32, width: 'auto' }}
+                sx={{
+                  height: 40,
+                  width: 'auto',
+                  filter: isDarkMode ? 'brightness(0) saturate(100%) invert(73%) sepia(45%) saturate(450%) hue-rotate(6deg) brightness(95%) contrast(85%)' : 'none'
+                }}
               />
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  fontWeight: 800, 
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 800,
                   letterSpacing: '1px',
                   fontFamily: '"Playfair Display", serif'
                 }}

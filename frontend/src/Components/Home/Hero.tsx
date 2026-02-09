@@ -67,31 +67,13 @@ const textVariants = {
 
 const Hero: React.FC = () => {
   const navigate = useNavigate();
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [direction, setDirection] = useState(1);
-
-  // Auto-rotate slides every 4 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDirection(1);
-      setCurrentIndex((prev) => (prev + 1) % heroSlides.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const goToSlide = (index: number) => {
-    setDirection(index > currentIndex ? 1 : -1);
-    setCurrentIndex(index);
-  };
-
-  const currentSlide = heroSlides[currentIndex];
 
   return (
-    <Box sx={{ width: '100%', bgcolor: '#f5f5f5', overflow: 'hidden' }}>
+    <Box sx={{ width: '100%', bgcolor: isDarkMode ? '#121212' : '#f5f5f5', overflow: 'hidden' }}>
       <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 }, py: 4 }}>
-        <Box 
-          sx={{ 
-            display: 'flex', 
+        <Box
+          sx={{
+            display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
             alignItems: 'center',
             justifyContent: 'center',
@@ -100,100 +82,74 @@ const Hero: React.FC = () => {
           }}
         >
           {/* Left Image (Women) */}
-          <Box 
-            sx={{ 
-              flex: 1, 
+          <Box
+            sx={{
+              flex: 1,
               height: { xs: 400, md: 600 },
               width: '100%',
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-          >
-            <AnimatePresence initial={false} custom={direction} mode="wait">
-              <motion.img
-                key={`left-${currentIndex}`}
-                src={currentSlide.leftImage}
-                alt="Women's Fashion"
-                custom={direction}
-                variants={imageVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.6, ease: 'easeInOut' }}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  objectPosition: 'top center',
-                }}
-              />
-            </AnimatePresence>
-          </Box>
+              backgroundImage: 'url(https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }} 
+          />
 
           {/* Center Content */}
-          <Box sx={{ flex: 1, textAlign: 'center', px: 2, position: 'relative', minHeight: 300 }}>
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`text-${currentIndex}`}
-                variants={textVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-              >
-                <Typography variant="overline" sx={{ letterSpacing: 2, color: '#666' }}>
-                  {currentSlide.subtitle}
-                </Typography>
-                
-                <Typography 
-                  variant="h1" 
-                  sx={{ 
-                    fontFamily: '"Playfair Display", serif',
-                    fontWeight: 700,
-                    fontSize: { xs: '3rem', lg: '5rem' },
-                    lineHeight: 1.1,
-                    mt: 2,
-                    mb: 1,
-                    whiteSpace: 'pre-line'
-                  }}
-                >
-                  {currentSlide.title}
-                </Typography>
+          <Box sx={{ flex: 1, textAlign: 'center', px: 2 }}>
+            <Typography variant="overline" sx={{ letterSpacing: 2, color: '#666' }}>
+              SUMMER 2024 COLLECTION
+            </Typography>
+            
+            <Typography 
+              variant="h1" 
+              sx={{ 
+                fontFamily: '"Playfair Display", serif',
+                fontWeight: 700,
+                fontSize: { xs: '3rem', lg: '5rem' },
+                lineHeight: 1.1,
+                mt: 2,
+                mb: 1
+              }}
+            >
+              FINAL<br />CLEARANCE
+            </Typography>
 
-                <Typography variant="body1" sx={{ mb: 4, letterSpacing: 1, color: '#666' }}>
-                  {currentSlide.description}
-                </Typography>
-              </motion.div>
-            </AnimatePresence>
+            <Typography variant="body1" sx={{ mb: 4, letterSpacing: 1, color: '#666' }}>
+              Take 20% Off "Sale Must-Haves"
+            </Typography>
 
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-              <Button 
-                variant="outlined" 
+              <Button
+                variant="outlined"
                 onClick={() => navigate('/shop?category=Women')}
-                sx={{ 
-                  borderRadius: 0, 
-                  color: 'black', 
-                  borderColor: 'black',
+                sx={{
+                  borderRadius: 0,
+                  color: isDarkMode ? '#D4AF37' : 'black',
+                  borderColor: isDarkMode ? '#D4AF37' : 'black',
                   px: 4,
                   py: 1.5,
-                  '&:hover': { bgcolor: 'black', color: 'white' }
+                  '&:hover': {
+                    bgcolor: isDarkMode ? '#D4AF37' : 'black',
+                    color: isDarkMode ? '#121212' : 'white',
+                    borderColor: isDarkMode ? '#D4AF37' : 'black'
+                  }
                 }}
               >
                 SHOP WOMEN'S
               </Button>
-              <Button 
-                variant="outlined" 
+              <Button
+                variant="outlined"
                 onClick={() => navigate('/shop?category=Men')}
-                sx={{ 
-                  borderRadius: 0, 
-                  color: 'black', 
-                  borderColor: 'black',
+                sx={{
+                  borderRadius: 0,
+                  color: isDarkMode ? '#D4AF37' : 'black',
+                  borderColor: isDarkMode ? '#D4AF37' : 'black',
                   px: 4,
                   py: 1.5,
-                  '&:hover': { bgcolor: 'black', color: 'white' }
+                  '&:hover': {
+                    bgcolor: isDarkMode ? '#D4AF37' : 'black',
+                    color: isDarkMode ? '#121212' : 'white',
+                    borderColor: isDarkMode ? '#D4AF37' : 'black'
+                  }
                 }}
               >
                 SHOP MEN'S
@@ -202,19 +158,14 @@ const Hero: React.FC = () => {
 
             {/* Dots Indicator */}
             <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mt: 6 }}>
-              {heroSlides.map((_, i) => (
+              {[0, 1, 2].map(i => (
                 <Box 
-                  key={i}
-                  onClick={() => goToSlide(i)}
+                  key={i} 
                   sx={{ 
-                    width: 10, 
-                    height: 10, 
+                    width: 8, 
+                    height: 8, 
                     borderRadius: '50%', 
-                    bgcolor: i === currentIndex ? 'black' : '#ccc',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    transform: i === currentIndex ? 'scale(1.2)' : 'scale(1)',
-                    '&:hover': { bgcolor: i === currentIndex ? 'black' : '#999' }
+                    bgcolor: i === 1 ? 'black' : '#ccc' 
                   }} 
                 />
               ))}
@@ -222,38 +173,16 @@ const Hero: React.FC = () => {
           </Box>
 
           {/* Right Image (Men) */}
-          <Box 
-            sx={{ 
-              flex: 1, 
+          <Box
+            sx={{
+              flex: 1,
               height: { xs: 400, md: 600 },
               width: '100%',
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-          >
-            <AnimatePresence initial={false} custom={direction} mode="wait">
-              <motion.img
-                key={`right-${currentIndex}`}
-                src={currentSlide.rightImage}
-                alt="Men's Fashion"
-                custom={direction}
-                variants={imageVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.6, ease: 'easeInOut' }}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  objectPosition: 'top center',
-                }}
-              />
-            </AnimatePresence>
-          </Box>
+              backgroundImage: 'url(https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?q=80&w=1000&auto=format&fit=crop)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'top center',
+            }} 
+          />
         </Box>
       </Container>
     </Box>
@@ -261,3 +190,4 @@ const Hero: React.FC = () => {
 };
 
 export default Hero;
+

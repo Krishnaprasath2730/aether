@@ -10,7 +10,8 @@ export const products: Product[] = [
         description: 'A modern take on the classic blazer. This oversized piece features structured shoulders and a relaxed fit, perfect for elevating any outfit from casual to sophisticated.',
         sizes: ['XS', 'S', 'M', 'L', 'XL'],
         colors: ['Black', 'Cream', 'Navy'],
-        inStock: true
+        inStock: true,
+        productType: 'other'
     },
     {
         id: '2',
@@ -21,7 +22,8 @@ export const products: Product[] = [
         description: 'Engineered for both style and function. These cargo pants feature water-resistant fabric, multiple utility pockets, and a tapered fit for a modern silhouette.',
         sizes: ['28', '30', '32', '34', '36'],
         colors: ['Black', 'Olive', 'Stone'],
-        inStock: true
+        inStock: true,
+        productType: 'pant'
     },
     {
         id: '3',
@@ -32,7 +34,8 @@ export const products: Product[] = [
         description: 'Timeless elegance meets contemporary design. Crafted from premium Italian wool, this coat features clean lines and a versatile silhouette that transcends seasons.',
         sizes: ['XS', 'S', 'M', 'L', 'XL'],
         colors: ['Camel', 'Black', 'Grey'],
-        inStock: true
+        inStock: true,
+        productType: 'other'
     },
     {
         id: '4',
@@ -43,7 +46,8 @@ export const products: Product[] = [
         description: 'The perfect everyday essential. Made from ultra-soft organic cotton blend, this relaxed-fit sweater offers exceptional comfort without compromising on style.',
         sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
         colors: ['Oatmeal', 'Charcoal', 'Forest Green'],
-        inStock: true
+        inStock: true,
+        productType: 'shirt'
     },
     {
         id: '5',
@@ -54,7 +58,8 @@ export const products: Product[] = [
         description: 'Effortless sophistication for warm days. This premium linen shirt features a relaxed yet refined cut with mother-of-pearl buttons and French seams.',
         sizes: ['S', 'M', 'L', 'XL', 'XXL'],
         colors: ['White', 'Light Blue', 'Sand'],
-        inStock: true
+        inStock: true,
+        productType: 'shirt'
     },
     {
         id: '6',
@@ -65,7 +70,8 @@ export const products: Product[] = [
         description: 'Flowing elegance in pure silk. This midi dress drapes beautifully with a flattering bias cut and features a subtle cowl neckline for understated glamour.',
         sizes: ['XS', 'S', 'M', 'L'],
         colors: ['Champagne', 'Blush', 'Emerald'],
-        inStock: true
+        inStock: true,
+        productType: 'other'
     },
     {
         id: '7',
@@ -76,7 +82,8 @@ export const products: Product[] = [
         description: 'Handcrafted from Italian calfskin leather with a minimalist design. Features cushioned insoles and durable rubber outsoles for all-day comfort.',
         sizes: ['38', '39', '40', '41', '42', '43', '44', '45'],
         colors: ['White', 'Black', 'Tan'],
-        inStock: true
+        inStock: true,
+        productType: 'other'
     },
     {
         id: '8',
@@ -87,7 +94,9 @@ export const products: Product[] = [
         description: 'Luxuriously soft cashmere blend scarf with a generous oversized dimension. Perfect for layering in colder months or as a sophisticated accent piece.',
         sizes: ['One Size'],
         colors: ['Burgundy', 'Navy', 'Grey', 'Camel'],
-        inStock: true
+        inStock: true,
+        stockCount: 5,
+        productType: 'other'
     },
     {
         id: '9',
@@ -98,7 +107,8 @@ export const products: Product[] = [
         description: 'A refined everyday companion. This structured tote is crafted from vegetable-tanned leather with a suede-lined interior and multiple organization pockets.',
         sizes: ['One Size'],
         colors: ['Black', 'Cognac', 'Taupe'],
-        inStock: true
+        inStock: true,
+        productType: 'other'
     },
     {
         id: '10',
@@ -109,7 +119,8 @@ export const products: Product[] = [
         description: 'A wardrobe staple reimagined. Premium Japanese selvedge denim with a relaxed fit, classic hardware, and a lightly washed finish for effortless cool.',
         sizes: ['XS', 'S', 'M', 'L', 'XL'],
         colors: ['Light Wash', 'Medium Wash', 'Dark Indigo'],
-        inStock: true
+        inStock: true,
+        productType: 'other'
     },
     {
         id: '11',
@@ -120,7 +131,8 @@ export const products: Product[] = [
         description: 'Statement trousers with a flattering wide-leg silhouette. High-waisted with a cropped length, perfect for showcasing your favorite footwear.',
         sizes: ['XS', 'S', 'M', 'L', 'XL'],
         colors: ['Black', 'Ivory', 'Terracotta'],
-        inStock: true
+        inStock: true,
+        productType: 'pant'
     },
     {
         id: '12',
@@ -131,11 +143,71 @@ export const products: Product[] = [
         description: 'Premium merino wool beanie that offers warmth without the itch. Ribbed construction with a slightly slouchy fit for contemporary style.',
         sizes: ['One Size'],
         colors: ['Black', 'Cream', 'Navy', 'Rust'],
-        inStock: true
+        inStock: true,
+        stockCount: 8,
+        productType: 'other'
+    },
+    // Refurbished Products
+    {
+        id: '13',
+        name: 'Oversized Struct Blazer (Open-Box)',
+        price: 179.00,
+        originalPrice: 249.00,
+        category: 'Women',
+        image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1936&auto=format&fit=crop',
+        description: 'Open-box item in perfect condition. A modern take on the classic blazer with structured shoulders and relaxed fit. Inspected and verified by our quality team.',
+        sizes: ['M', 'L'],
+        colors: ['Black', 'Navy'],
+        inStock: true,
+        isRefurbished: true,
+        condition: 'open-box',
+        productType: 'other'
+    },
+    {
+        id: '14',
+        name: 'Technical Cargo Pant (Refurbished)',
+        price: 119.00,
+        originalPrice: 189.00,
+        category: 'Men',
+        image: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=2070&auto=format&fit=crop',
+        description: 'Professionally refurbished. Minor signs of previous use, fully functional. Water-resistant fabric with utility pockets. Verified quality.',
+        sizes: ['30', '32', '34'],
+        colors: ['Black', 'Olive'],
+        inStock: true,
+        isRefurbished: true,
+        condition: 'refurbished',
+        productType: 'pant'
+    },
+    {
+        id: '15',
+        name: 'Premium Leather Sneakers (Open-Box)',
+        price: 199.00,
+        originalPrice: 279.00,
+        category: 'Footwear',
+        image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=2012&auto=format&fit=crop',
+        description: 'Open-box item, tried on but never worn outdoors. Italian calfskin leather with cushioned insoles. Includes original packaging.',
+        sizes: ['40', '42', '43'],
+        colors: ['White', 'Black'],
+        inStock: true,
+        isRefurbished: true,
+        condition: 'open-box',
+        productType: 'other'
+    },
+    {
+        id: '16',
+        name: 'Essential Oxford Shirt',
+        price: 119.00,
+        category: 'Men',
+        image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?q=80&w=2070&auto=format&fit=crop',
+        description: 'Classic oxford shirt crafted from premium cotton. Features a button-down collar and tailored fit for versatile styling.',
+        sizes: ['S', 'M', 'L', 'XL'],
+        colors: ['White', 'Light Blue', 'Navy'],
+        inStock: true,
+        productType: 'shirt'
     }
 ];
 
-export const categories = ['All', 'Men', 'Women', 'Unisex', 'Outerwear', 'Footwear', 'Accessories'];
+export const categories = ['All', 'Men', 'Women', 'Unisex', 'Outerwear', 'Footwear', 'Accessories', 'Hub'];
 
 export const getProductById = (id: string): Product | undefined => {
     return products.find(p => p.id === id);
@@ -145,3 +217,14 @@ export const getProductsByCategory = (category: string): Product[] => {
     if (category === 'All') return products;
     return products.filter(p => p.category === category);
 };
+
+// Get refurbished products only
+export const getRefurbishedProducts = (): Product[] => {
+    return products.filter(p => p.isRefurbished);
+};
+
+// Get products by type for combo detection
+export const getProductsByType = (type: 'shirt' | 'pant' | 'other'): Product[] => {
+    return products.filter(p => p.productType === type);
+};
+

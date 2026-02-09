@@ -1,16 +1,50 @@
 import { WebSocketServer, WebSocket } from 'ws';
+import express from 'express';
 import http from 'http';
+import cors from 'cors';
 import dotenv from 'dotenv';
-
+import connectDB from './config/database';
 dotenv.config();
+import authRoutes from './routes/auth.routes';
+import otpRoutes from './routes/otp.routes';
+import oauthRoutes from './routes/oauth.routes';
+import userDataRoutes from './routes/userDataRoutes';
+import orderRoutes from './routes/orderRoutes';
+import passwordResetRoutes from './routes/passwordResetRoutes';
+import walletRoutes from './routes/walletRoutes';
+import adminRoutes from './routes/adminRoutes';
+import scratchCardRoutes from './routes/scratchCardRoutes';
+import passport from './config/passport';
+
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 8080;
 
-// Create HTTP server for health checks (required by some deployment platforms)
-const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Aether WebSocket Server Running');
+// Create Express app
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
+app.use(passport.initialize());
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/auth', otpRoutes); // OTP routes under /api/auth
+app.use('/api/auth', oauthRoutes); // OAuth routes under /api/auth
+app.use('/api/user', userDataRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/password', passwordResetRoutes);
+app.use('/api/wallet', walletRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/scratch-cards', scratchCardRoutes);
+
+// Health check endpoint
+app.get('/', (req, res) => {
+    res.json({ message: 'Aether Server Running', status: 'healthy' });
 });
+
+// Create HTTP server
+const server = http.createServer(app);
 
 // Attach WebSocket server to HTTP server
 const wss = new WebSocketServer({ server });
@@ -23,9 +57,22 @@ interface Client {
 
 const clients = new Map<WebSocket, Client>();
 
-server.listen(PORT, () => {
-    console.log(`Signaling server running on port ${PORT}`);
-});
+// Connect to MongoDB
+
+
+const Start_Server = async () => {
+
+    try {
+        await connectDB();
+        server.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+            // console.log(`HTTP API: http://localhost:${PORT}`);
+            // console.log(`WebSocket: ws://localhost:${PORT}`);
+        });
+    } catch (error) {
+        console.error('Error starting server:', error);
+    }
+}
 
 wss.on('connection', (ws) => {
     console.log('New client connected');
@@ -87,3 +134,5 @@ function broadcastToSession(sessionId: string, message: any, sender: WebSocket) 
         }
     });
 }
+
+Start_Server();

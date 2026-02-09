@@ -4,25 +4,27 @@ import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined
 import CardGiftcardOutlinedIcon from '@mui/icons-material/CardGiftcardOutlined';
 import VerifiedOutlinedIcon from '@mui/icons-material/VerifiedOutlined';
 import DiamondOutlinedIcon from '@mui/icons-material/DiamondOutlined';
+import { useTheme } from '../../context/ThemeContext';
 
 const Newsletter: React.FC = () => {
+  const { isDarkMode } = useTheme();
   const [email, setEmail] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email) {
       setError('Please enter your email');
       return;
     }
-    
+
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError('Please enter a valid email');
       return;
     }
-    
+
     setSnackbarOpen(true);
     setEmail('');
     setError('');
@@ -36,10 +38,12 @@ const Newsletter: React.FC = () => {
   ];
 
   return (
-    <Box 
-      sx={{ 
+    <Box
+      sx={{
         py: { xs: 10, md: 14 },
-        background: 'linear-gradient(180deg, #ffffff 0%, #f5f0e8 100%)',
+        background: isDarkMode
+          ? 'linear-gradient(180deg, #121212 0%, #1a1a1a 100%)'
+          : 'linear-gradient(180deg, #ffffff 0%, #f5f0e8 100%)',
         position: 'relative',
         overflow: 'hidden'
       }}
@@ -53,7 +57,7 @@ const Newsletter: React.FC = () => {
           transform: 'translate(-50%, -50%)',
           fontSize: { xs: '6rem', md: '15rem' },
           fontWeight: 900,
-          color: 'rgba(0,0,0,0.06)',
+          color: isDarkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
           whiteSpace: 'nowrap',
           pointerEvents: 'none',
           fontFamily: '"Playfair Display", serif'
@@ -64,39 +68,39 @@ const Newsletter: React.FC = () => {
 
       <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
         {/* Benefits Bar */}
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            flexWrap: 'wrap', 
-            gap: { xs: 2, md: 4 }, 
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: { xs: 2, md: 4 },
             mb: 10,
             justifyContent: 'center'
           }}
         >
           {benefits.map((benefit, index) => (
-            <Box 
+            <Box
               key={index}
-              sx={{ 
+              sx={{
                 flex: { xs: '1 1 45%', md: '1 1 20%' },
                 maxWidth: { xs: '45%', md: '24%' },
-                display: 'flex', 
+                display: 'flex',
                 flexDirection: 'column',
-                alignItems: 'center', 
+                alignItems: 'center',
                 textAlign: 'center',
                 gap: 1.5,
                 p: 3,
                 borderRadius: 3,
                 transition: 'all 0.3s',
                 '&:hover': {
-                  bgcolor: 'white',
-                  boxShadow: '0 20px 40px rgba(0,0,0,0.08)'
+                  bgcolor: isDarkMode ? '#2d2d2d' : 'white',
+                  boxShadow: isDarkMode ? '0 20px 40px rgba(0,0,0,0.4)' : '0 20px 40px rgba(0,0,0,0.08)'
                 }
               }}
             >
-              <Box sx={{ 
-                width: 60, 
-                height: 60, 
-                borderRadius: '50%', 
+              <Box sx={{
+                width: 60,
+                height: 60,
+                borderRadius: '50%',
                 bgcolor: '#D5A249',
                 color: 'white',
                 display: 'flex',
@@ -123,10 +127,10 @@ const Newsletter: React.FC = () => {
             </Typography>
             <Box sx={{ width: 60, height: 1, bgcolor: '#D5A249' }} />
           </Box>
-          
-          <Typography 
-            variant="h2" 
-            sx={{ 
+
+          <Typography
+            variant="h2"
+            sx={{
               mb: 2,
               fontFamily: '"Playfair Display", serif',
               fontSize: { xs: '2.5rem', md: '3.5rem' },
@@ -136,25 +140,25 @@ const Newsletter: React.FC = () => {
           >
             Subscribe & <span>Save 15%</span>
           </Typography>
-          
-          <Typography 
-            sx={{ 
-              mb: 5, 
+
+          <Typography
+            sx={{
+              mb: 5,
               color: 'text.secondary',
               lineHeight: 1.8
             }}
           >
-            Be the first to know about new collections, exclusive offers, and style inspiration 
+            Be the first to know about new collections, exclusive offers, and style inspiration
             delivered straight to your inbox.
           </Typography>
 
-          <Box 
-            component="form" 
+          <Box
+            component="form"
             onSubmit={handleSubmit}
-            sx={{ 
-              display: 'flex', 
-              gap: 0, 
-              maxWidth: 500, 
+            sx={{
+              display: 'flex',
+              gap: 0,
+              maxWidth: 500,
               mx: 'auto',
               boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
               borderRadius: 2,
@@ -172,13 +176,17 @@ const Newsletter: React.FC = () => {
               error={!!error}
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  bgcolor: 'white',
+                  bgcolor: isDarkMode ? '#2d2d2d' : 'white',
                   borderRadius: 0,
-                  '& fieldset': { border: 'none' }
+                  '& fieldset': { border: 'none' },
+                  color: isDarkMode ? '#f5f5f5' : 'inherit'
                 },
                 '& .MuiOutlinedInput-input': {
                   py: 2.5,
-                  px: 3
+                  px: 3,
+                  '&::placeholder': {
+                    color: isDarkMode ? '#888' : 'inherit'
+                  }
                 }
               }}
             />
@@ -187,7 +195,8 @@ const Newsletter: React.FC = () => {
               variant="contained"
               sx={{
                 px: 4,
-                bgcolor: '#2C2C2C',
+                bgcolor: isDarkMode ? '#D4AF37' : '#2C2C2C',
+                color: isDarkMode ? '#121212' : 'white',
                 fontWeight: 700,
                 borderRadius: 0,
                 whiteSpace: 'nowrap',
@@ -216,12 +225,12 @@ const Newsletter: React.FC = () => {
         onClose={() => setSnackbarOpen(false)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert 
-          onClose={() => setSnackbarOpen(false)} 
-          severity="success" 
-          sx={{ 
-            bgcolor: '#2C2C2C', 
-            color: 'white', 
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity="success"
+          sx={{
+            bgcolor: '#2C2C2C',
+            color: 'white',
             '& .MuiAlert-icon': { color: '#D5A249' },
             borderRadius: 2
           }}

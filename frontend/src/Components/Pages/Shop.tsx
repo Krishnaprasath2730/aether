@@ -5,18 +5,21 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import CloseIcon from '@mui/icons-material/Close';
 import TuneIcon from '@mui/icons-material/Tune';
+import RecyclingIcon from '@mui/icons-material/Recycling';
 import ProductCard from '../Product/ProductCard';
-import { products, categories } from '../../data/products';
+import { products, categories, getRefurbishedProducts } from '../../data/products';
+import { useTheme } from '../../context/ThemeContext';
 
 const PRODUCTS_PER_PAGE = 12;
 
 const Shop: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  
+  const { isDarkMode } = useTheme();
+
   // Get initial values from URL params
   const initialCategory = searchParams.get('category') || 'All';
   const initialSearch = searchParams.get('search') || '';
-  
+
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [sortBy, setSortBy] = useState('featured');
@@ -39,26 +42,33 @@ const Shop: React.FC = () => {
 
   const filteredProducts = useMemo(() => {
     let result = [...products];
-    
+
     // Filter by category
-    if (selectedCategory !== 'All') {
+    if (selectedCategory === 'Hub') {
+      result = result.filter(p => p.isRefurbished);
+    } else if (selectedCategory !== 'All') {
       result = result.filter(p => p.category.toLowerCase() === selectedCategory.toLowerCase());
+      // Exclude refurbished from standard categories unless specified? 
+      // Usually standard shop might mix them or hide them. 
+      // For now, let's keep standard behavior: if it has category 'Women', it shows in 'Women'.
+      // But if user explicitly wants 'Hub' separate, maybe we should filter OUT refurbished from other cats?
+      // User didn't ask to hide them, just to show them in Hub. I'll stick to basic filtering.
     }
-    
+
     // Filter by search
     if (searchQuery) {
       const query = searchQuery.toLowerCase().trim();
-      result = result.filter(p => 
-        p.name.toLowerCase().includes(query) || 
+      result = result.filter(p =>
+        p.name.toLowerCase().includes(query) ||
         p.category.toLowerCase().includes(query) ||
         p.description.toLowerCase().includes(query) ||
         p.colors.some(c => c.toLowerCase().includes(query))
       );
     }
-    
+
     // Filter by price
     result = result.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
-    
+
     // Sort
     switch (sortBy) {
       case 'price-low':
@@ -77,9 +87,17 @@ const Shop: React.FC = () => {
         // Featured - keep original order
         break;
     }
-    
+
     return result;
   }, [selectedCategory, searchQuery, sortBy, priceRange]);
+
+  const hubFeaturedProducts = useMemo(() => {
+    if (selectedCategory === 'Hub') {
+      // Just take the first 5-6 as "Featured" for the horizontal scroll
+      return getRefurbishedProducts().slice(0, 6);
+    }
+    return [];
+  }, [selectedCategory]);
 
   // Pagination
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
@@ -112,7 +130,7 @@ const Shop: React.FC = () => {
           </Button>
         )}
       </Box>
-      
+
       {/* Price Range */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 2 }}>Price Range</Typography>
@@ -122,7 +140,7 @@ const Shop: React.FC = () => {
           valueLabelDisplay="auto"
           min={0}
           max={500}
-          sx={{ 
+          sx={{
             color: '#D5A249',
             '& .MuiSlider-thumb': { bgcolor: '#D5A249' },
             '& .MuiSlider-track': { bgcolor: '#D5A249' }
@@ -133,27 +151,31 @@ const Shop: React.FC = () => {
           <Typography variant="caption" fontWeight={600}>${priceRange[1]}</Typography>
         </Box>
       </Box>
-      
+
       {/* Categories */}
       <Box>
         <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 2 }}>Categories</Typography>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
           {categories.map(cat => (
-            <Box 
+            <Box
               key={cat}
               onClick={() => handleCategoryChange(cat)}
-              sx={{ 
-                py: 1.5, 
-                px: 2, 
-                cursor: 'pointer', 
+              sx={{
+                py: 1.5,
+                px: 2,
+                cursor: 'pointer',
                 borderRadius: 1,
-                bgcolor: selectedCategory === cat ? '#2C2C2C' : 'transparent',
-                color: selectedCategory === cat ? 'white' : 'text.primary',
+                bgcolor: selectedCategory === cat ? (isDarkMode ? '#D4AF37' : '#2C2C2C') : 'transparent',
+                color: selectedCategory === cat ? (isDarkMode ? '#121212' : 'white') : 'text.primary',
                 transition: 'all 0.2s',
                 fontWeight: selectedCategory === cat ? 600 : 400,
-                '&:hover': { bgcolor: selectedCategory === cat ? '#2C2C2C' : '#f5f5f5' }
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                '&:hover': { bgcolor: selectedCategory === cat ? (isDarkMode ? '#D4AF37' : '#2C2C2C') : (isDarkMode ? '#2d2d2d' : '#f5f5f5') }
               }}
             >
+              {cat === 'Hub' && <RecyclingIcon sx={{ fontSize: 18 }} />}
               <Typography variant="body2">{cat}</Typography>
             </Box>
           ))}
@@ -163,16 +185,20 @@ const Shop: React.FC = () => {
   );
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#fafafa' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: isDarkMode ? '#121212' : '#fafafa' }}>
       {/* Hero Banner */}
       <Box sx={{ bgcolor: '#2C2C2C', color: 'white', py: 8, textAlign: 'center' }}>
         <Container maxWidth="lg">
-          <Typography variant="overline" sx={{ color: '#D5A249', letterSpacing: 3 }}>THE COLLECTION</Typography>
+          <Typography variant="overline" sx={{ color: '#D5A249', letterSpacing: 3 }}>
+            {selectedCategory === 'Hub' ? 'SUSTAINABLE SHOPPING' : 'THE COLLECTION'}
+          </Typography>
           <Typography variant="h2" fontWeight={800} sx={{ mt: 1, fontFamily: '"Playfair Display", serif' }}>
-            {selectedCategory === 'All' ? 'Shop All' : selectedCategory}
+            {selectedCategory === 'All' ? 'Shop All' : selectedCategory === 'Hub' ? 'Outlet Hub' : selectedCategory}
           </Typography>
           <Typography variant="body1" sx={{ opacity: 0.8, mt: 2 }}>
-            Discover our curated selection of premium essentials
+            {selectedCategory === 'Hub'
+              ? 'Premium returned items, professionally inspected and verified.'
+              : 'Discover our curated selection of premium essentials'}
           </Typography>
         </Container>
       </Box>
@@ -186,20 +212,24 @@ const Shop: React.FC = () => {
               <Chip
                 key={cat}
                 label={cat}
+                icon={cat === 'Hub' ? <RecyclingIcon sx={{ fontSize: '16px !important' }} /> : undefined}
                 onClick={() => handleCategoryChange(cat)}
                 sx={{
-                  bgcolor: selectedCategory === cat ? '#2C2C2C' : 'white',
-                  color: selectedCategory === cat ? 'white' : 'text.primary',
+                  bgcolor: selectedCategory === cat ? (isDarkMode ? '#D4AF37' : '#2C2C2C') : (isDarkMode ? '#1e1e1e' : 'white'),
+                  color: selectedCategory === cat ? (isDarkMode ? '#121212' : 'white') : 'text.primary',
                   fontWeight: 600,
-                  '&:hover': { bgcolor: selectedCategory === cat ? '#2C2C2C' : '#f0f0f0' }
+                  '&:hover': { bgcolor: selectedCategory === cat ? '#2C2C2C' : '#f0f0f0' },
+                  '& .MuiChip-icon': {
+                    color: selectedCategory === cat ? (isDarkMode ? '#121212' : 'white') : 'inherit'
+                  }
                 }}
               />
             ))}
           </Box>
-          
+
           {/* Mobile Filter Button */}
-          <Button 
-            startIcon={<TuneIcon />} 
+          <Button
+            startIcon={<TuneIcon />}
             onClick={() => setMobileFiltersOpen(true)}
             variant="outlined"
             sx={{ display: { xs: 'flex', md: 'none' }, color: '#2C2C2C', borderColor: '#2C2C2C' }}
@@ -215,13 +245,37 @@ const Shop: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               InputProps={{
-                startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment>
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: isDarkMode ? '#f5f5f5' : 'inherit' }} />
+                  </InputAdornment>
+                )
               }}
-              sx={{ width: { xs: '100%', sm: 220 }, bgcolor: 'white' }}
+              sx={{
+                width: { xs: '100%', sm: 220 },
+                bgcolor: isDarkMode ? '#1e1e1e' : 'white',
+                '& .MuiInputBase-input': {
+                  color: isDarkMode ? '#f5f5f5' : 'inherit'
+                },
+                '& .MuiInputBase-input::placeholder': {
+                  color: isDarkMode ? '#888' : 'inherit',
+                  opacity: 1
+                }
+              }}
             />
-            <FormControl size="small" sx={{ minWidth: 160, bgcolor: 'white' }}>
-              <InputLabel>Sort By</InputLabel>
-              <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
+            <FormControl size="small" sx={{ minWidth: 160, bgcolor: isDarkMode ? '#1e1e1e' : 'white' }}>
+              <InputLabel sx={{ color: isDarkMode ? '#888' : 'inherit', '&.Mui-focused': { color: isDarkMode ? '#D4AF37' : 'inherit' } }}>Sort By</InputLabel>
+              <Select
+                value={sortBy}
+                label="Sort By"
+                onChange={(e) => setSortBy(e.target.value)}
+                sx={{
+                  color: isDarkMode ? '#f5f5f5' : 'inherit',
+                  '& .MuiSvgIcon-root': {
+                    color: isDarkMode ? '#f5f5f5' : 'inherit'
+                  }
+                }}
+              >
                 <MenuItem value="featured">Featured</MenuItem>
                 <MenuItem value="price-low">Price: Low to High</MenuItem>
                 <MenuItem value="price-high">Price: High to Low</MenuItem>
@@ -234,20 +288,46 @@ const Shop: React.FC = () => {
 
         <Box sx={{ display: 'flex', gap: 4 }}>
           {/* Sidebar Filters (Desktop) */}
-          <Box 
-            sx={{ 
-              width: { xs: '100%', md: 280 }, 
+          <Box
+            sx={{
+              width: { xs: '100%', md: 280 },
               flexShrink: 0,
-              display: { xs: 'none', md: 'block' } 
+              display: { xs: 'none', md: 'block' }
             }}
           >
-            <Box sx={{ bgcolor: 'white', p: 3, borderRadius: 2, position: 'sticky', top: 100 }}>
+            <Box sx={{ bgcolor: isDarkMode ? '#1e1e1e' : 'white', p: 3, borderRadius: 2, position: 'sticky', top: 100 }}>
               <FilterContent />
             </Box>
           </Box>
 
           {/* Product Grid */}
           <Box sx={{ flex: 1 }}>
+
+            {/* Hub Spotlight - Horizontal Scroll */}
+            {selectedCategory === 'Hub' && hubFeaturedProducts.length > 0 && (
+              <Box sx={{ mb: 6 }}>
+                <Typography variant="h5" fontWeight={700} sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <RecyclingIcon color="primary" /> Hub Spotlight
+                </Typography>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: 3,
+                    overflowX: 'auto',
+                    pb: 2,
+                    '::-webkit-scrollbar': { height: 8 },
+                    '::-webkit-scrollbar-thumb': { bgcolor: isDarkMode ? '#444' : '#ccc', borderRadius: 4 }
+                  }}
+                >
+                  {hubFeaturedProducts.map(product => (
+                    <Box key={`featured-${product.id}`} sx={{ minWidth: 280, maxWidth: 280 }}>
+                      <ProductCard {...product} />
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            )}
+
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="body2" color="text.secondary">
                 Showing {paginatedProducts.length} of {filteredProducts.length} products
@@ -258,20 +338,20 @@ const Shop: React.FC = () => {
                 </Button>
               )}
             </Box>
-            
+
             {paginatedProducts.length > 0 ? (
               <>
-                <Box 
-                  sx={{ 
-                    display: 'flex', 
-                    flexWrap: 'wrap', 
-                    gap: 3 
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 3
                   }}
                 >
                   {paginatedProducts.map(product => (
-                    <Box 
+                    <Box
                       key={product.id}
-                      sx={{ 
+                      sx={{
                         flex: { xs: '1 1 45%', sm: '1 1 30%', lg: '1 1 22%' },
                         maxWidth: { xs: '48%', sm: '32%', lg: '24%' }
                       }}
@@ -280,12 +360,12 @@ const Shop: React.FC = () => {
                     </Box>
                   ))}
                 </Box>
-                
+
                 {/* Pagination */}
                 {totalPages > 1 && (
                   <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
-                    <Pagination 
-                      count={totalPages} 
+                    <Pagination
+                      count={totalPages}
                       page={currentPage}
                       onChange={(_, page) => setCurrentPage(page)}
                       color="standard"
@@ -297,7 +377,7 @@ const Shop: React.FC = () => {
                 )}
               </>
             ) : (
-              <Box sx={{ textAlign: 'center', py: 10, bgcolor: 'white', borderRadius: 2 }}>
+              <Box sx={{ textAlign: 'center', py: 10, bgcolor: isDarkMode ? '#1e1e1e' : 'white', borderRadius: 2 }}>
                 <FilterListIcon sx={{ fontSize: 60, color: '#e0e0e0', mb: 2 }} />
                 <Typography variant="h5" fontWeight={600} color="text.secondary">No products found</Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 3 }}>

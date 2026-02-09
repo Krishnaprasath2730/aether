@@ -11,7 +11,7 @@ import type { Product } from '../../types';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 
-interface ProductCardProps extends Product {}
+interface ProductCardProps extends Product { }
 
 const ProductCard: React.FC<ProductCardProps> = (product) => {
   const { addToCart, isInCart } = useCart();
@@ -28,7 +28,7 @@ const ProductCard: React.FC<ProductCardProps> = (product) => {
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (inWishlist) {
       removeFromWishlist(product.id);
       setSnackbar({ open: true, message: 'Removed from wishlist', severity: 'success' });
@@ -188,11 +188,11 @@ const ProductCard: React.FC<ProductCardProps> = (product) => {
 
         {/* Product Info */}
         <Box sx={{ pt: 3 }}>
-          <Typography 
-            variant="caption" 
-            sx={{ 
-              color: '#D5A249', 
-              textTransform: 'uppercase', 
+          <Typography
+            variant="caption"
+            sx={{
+              color: '#D5A249',
+              textTransform: 'uppercase',
               letterSpacing: 2,
               fontWeight: 600,
               fontSize: '0.65rem'
@@ -200,12 +200,12 @@ const ProductCard: React.FC<ProductCardProps> = (product) => {
           >
             {product.category}
           </Typography>
-          
+
           <Link to={`/product/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-            <Typography 
-              variant="subtitle1" 
-              sx={{ 
-                fontWeight: 600, 
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontWeight: 600,
                 mt: 0.5,
                 transition: 'color 0.3s',
                 '&:hover': { color: '#D5A249' }
@@ -214,22 +214,39 @@ const ProductCard: React.FC<ProductCardProps> = (product) => {
               {product.name}
             </Typography>
           </Link>
-          
+
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 1 }}>
             <Typography variant="body1" fontWeight={700} sx={{ fontSize: '1.1rem' }}>
               ${product.price.toFixed(2)}
             </Typography>
-            {/* Fake original price for luxury feel */}
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                textDecoration: 'line-through', 
+            {/* Original price - show actual original for refurbished, or calculated for regular */}
+            <Typography
+              variant="body2"
+              sx={{
+                textDecoration: 'line-through',
                 color: 'text.disabled',
                 fontSize: '0.85rem'
               }}
             >
-              ${(product.price * 1.3).toFixed(2)}
+              ${(product.originalPrice || product.price * 1.3).toFixed(2)}
             </Typography>
+            {/* Show savings percentage for refurbished */}
+            {product.isRefurbished && product.originalPrice && (
+              <Typography
+                variant="caption"
+                sx={{
+                  bgcolor: '#4CAF50',
+                  color: 'white',
+                  px: 1,
+                  py: 0.25,
+                  borderRadius: 1,
+                  fontWeight: 600,
+                  fontSize: '0.65rem'
+                }}
+              >
+                SAVE {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+              </Typography>
+            )}
           </Box>
 
           {/* Color Swatches Preview */}
@@ -241,18 +258,18 @@ const ProductCard: React.FC<ProductCardProps> = (product) => {
                   width: 16,
                   height: 16,
                   borderRadius: '50%',
-                  bgcolor: 
+                  bgcolor:
                     color.toLowerCase() === 'black' ? '#1a1a1a' :
-                    color.toLowerCase() === 'white' ? '#f5f5f5' :
-                    color.toLowerCase() === 'cream' ? '#f5f5dc' :
-                    color.toLowerCase() === 'navy' ? '#1e3a5f' :
-                    color.toLowerCase() === 'brown' ? '#8B4513' :
-                    color.toLowerCase() === 'gray' || color.toLowerCase() === 'grey' ? '#808080' :
-                    color.toLowerCase() === 'tan' ? '#D2B48C' :
-                    color.toLowerCase() === 'olive' ? '#556B2F' :
-                    color.toLowerCase() === 'beige' ? '#F5F5DC' :
-                    color.toLowerCase() === 'camel' ? '#C19A6B' :
-                    color.toLowerCase(),
+                      color.toLowerCase() === 'white' ? '#f5f5f5' :
+                        color.toLowerCase() === 'cream' ? '#f5f5dc' :
+                          color.toLowerCase() === 'navy' ? '#1e3a5f' :
+                            color.toLowerCase() === 'brown' ? '#8B4513' :
+                              color.toLowerCase() === 'gray' || color.toLowerCase() === 'grey' ? '#808080' :
+                                color.toLowerCase() === 'tan' ? '#D2B48C' :
+                                  color.toLowerCase() === 'olive' ? '#556B2F' :
+                                    color.toLowerCase() === 'beige' ? '#F5F5DC' :
+                                      color.toLowerCase() === 'camel' ? '#C19A6B' :
+                                        color.toLowerCase(),
                   border: '2px solid white',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}
@@ -269,8 +286,8 @@ const ProductCard: React.FC<ProductCardProps> = (product) => {
       </Box>
 
       {/* Quick Add Modal */}
-      <Dialog 
-        open={showQuickAdd} 
+      <Dialog
+        open={showQuickAdd}
         onClose={() => setShowQuickAdd(false)}
         PaperProps={{ sx: { borderRadius: 3, maxWidth: 400, width: '100%' } }}
       >

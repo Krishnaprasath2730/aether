@@ -2,13 +2,14 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Snackbar, Alert, IconButton } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCoBrowse } from './CoBrowseContext';
+import { useAuth } from '../../../context/AuthContext';
 import PrivacyOverlay from './PrivacyOverlay';
 import LinkIcon from '@mui/icons-material/Link';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloseIcon from '@mui/icons-material/Close';
 
 const CoBrowseManager: React.FC = () => {
-    const { role, sessionId, status, createSession, joinSession, endSession, broadcast, lastEvent } = useCoBrowse();
+    const { role, sessionId, status, createSession, joinSession, broadcast, lastEvent } = useCoBrowse();
     const location = useLocation();
     const navigate = useNavigate();
     const [isPrivate, setIsPrivate] = useState(false);
@@ -25,7 +26,7 @@ const CoBrowseManager: React.FC = () => {
     useEffect(() => {
         const privatePaths = ['/checkout', '/account', '/profile'];
         const currentIsPrivate = privatePaths.some(path => location.pathname.includes(path));
-        
+
         setIsPrivate(currentIsPrivate);
 
         // Notify guests if privacy state changes
@@ -39,13 +40,13 @@ const CoBrowseManager: React.FC = () => {
         if (el.id) return `#${el.id}`;
         if (el.tagName.toLowerCase() === 'body') return 'body';
         if (el.tagName.toLowerCase() === 'html') return 'html';
-        
+
         // Optimization: if direct parent has ID, use that
         if (el.parentElement && el.parentElement.id) {
-             let tag = el.tagName.toLowerCase();
-             let siblings = Array.from(el.parentElement.children);
-             let index = siblings.indexOf(el) + 1;
-             return `#${el.parentElement.id} > ${tag}:nth-child(${index})`;
+            let tag = el.tagName.toLowerCase();
+            let siblings = Array.from(el.parentElement.children);
+            let index = siblings.indexOf(el) + 1;
+            return `#${el.parentElement.id} > ${tag}:nth-child(${index})`;
         }
 
         let path = [];
@@ -78,7 +79,7 @@ const CoBrowseManager: React.FC = () => {
     // Inbound Events (Listen)
     useEffect(() => {
         if (!lastEvent) return;
-        
+
         if (lastEvent.type === 'NAVIGATE') {
             if (location.pathname !== lastEvent.payload.path) {
                 isSilentUpdate.current = true;
@@ -110,7 +111,7 @@ const CoBrowseManager: React.FC = () => {
                     setTimeout(() => ripple.remove(), 500);
 
                     element.click();
-                    element.focus(); 
+                    element.focus();
                 }
             } catch (e) {
                 console.error("Click error:", e);
@@ -119,31 +120,31 @@ const CoBrowseManager: React.FC = () => {
         }
 
         if (lastEvent.type === 'INPUT') {
-             isSilentUpdate.current = true;
-             const element = document.querySelector(lastEvent.payload.selector) as HTMLInputElement;
-             if (element) {
-                 element.value = lastEvent.payload.value;
-                 element.dispatchEvent(new Event('input', { bubbles: true }));
-                 element.dispatchEvent(new Event('change', { bubbles: true }));
-             }
-             setTimeout(() => { isSilentUpdate.current = false; }, 50);
+            isSilentUpdate.current = true;
+            const element = document.querySelector(lastEvent.payload.selector) as HTMLInputElement;
+            if (element) {
+                element.value = lastEvent.payload.value;
+                element.dispatchEvent(new Event('input', { bubbles: true }));
+                element.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            setTimeout(() => { isSilentUpdate.current = false; }, 50);
         }
-        
+
         if (lastEvent.type === 'PRIVACY_TOGGLE') {
-             if (role === 'guest') setIsPrivate(lastEvent.payload.isPrivate);
+            if (role === 'guest') setIsPrivate(lastEvent.payload.isPrivate);
         }
-        
+
         if (lastEvent.type === 'SCROLL') {
             isSilentUpdate.current = true;
             window.scrollTo({
                 top: lastEvent.payload.y,
-                behavior: 'auto' 
+                behavior: 'auto'
             });
             setTimeout(() => { isSilentUpdate.current = false; }, 50);
         }
-        
+
         if (lastEvent.type === 'CURSOR_MOVE') {
-             setRemoteCursor({ x: lastEvent.payload.x, y: lastEvent.payload.y });
+            setRemoteCursor({ x: lastEvent.payload.x, y: lastEvent.payload.y });
         }
 
         if (lastEvent.type === 'PEER_DISCONNECTED') {
@@ -162,8 +163,7 @@ const CoBrowseManager: React.FC = () => {
     // Outbound Events (Broadcast)
     useEffect(() => {
         if (!sessionId) return; 
-        
-        // ... (keep outbound logic)
+
         // Navigation Broadcast
         const privatePaths = ['/checkout', '/account', '/profile'];
         const isTargetPrivate = privatePaths.some(path => location.pathname.includes(path));
@@ -172,35 +172,37 @@ const CoBrowseManager: React.FC = () => {
             if (role === 'guest' && isTargetPrivate) {
                 // Block Guest -> Host private nav
             } else {
-                 broadcast('NAVIGATE', { path: location.pathname });
+                broadcast('NAVIGATE', { path: location.pathname });
             }
         }
 
         const handleInput = (e: Event) => {
-             if (isSilentUpdate.current) return;
-             if (role === 'guest' && isTargetPrivate) return;
+            if (isSilentUpdate.current) return;
+            if (role === 'guest' && isTargetPrivate) return;
 
-             const target = e.target as HTMLInputElement;
-             if (target.type === 'password') return;
+            const target = e.target as HTMLInputElement;
+            if (target.type === 'password') return;
 
-             const selector = getCssSelector(target);
-             broadcast('INPUT', { 
-                 selector, 
-                 value: target.value 
-             });
+            const selector = getCssSelector(target);
+            broadcast('INPUT', {
+                selector,
+                value: target.value
+            });
         };
 
         const handleClick = (e: MouseEvent) => {
-             if (isSilentUpdate.current) return;
-             if (role === 'guest' && isTargetPrivate) return;
+            if (isSilentUpdate.current) return;
+            if (role === 'guest' && isTargetPrivate) return;
 
-             let target = e.target as Element;
-             const interactive = target.closest('button, a, input, select, [role="button"]');
-             if (interactive) target = interactive;
+            let target = e.target as Element;
+            const interactive = target.closest('button, a, input, select, [role="button"]');
+            if (interactive) target = interactive;
 
-             if (target.closest && (target.closest('.MuiDialog-root') || target.closest('.MuiChip-root'))) return;
+            if (target.closest && (target.closest('.MuiDialog-root') || target.closest('.MuiChip-root'))) return;
 
              const selector = getCssSelector(target);
+             console.log("Broadcasting Click:", selector);
+             
              broadcast('CLICK', { 
                  selector, 
                  x: e.pageX, 
@@ -209,11 +211,11 @@ const CoBrowseManager: React.FC = () => {
         };
 
         const handleScroll = () => {
-             if (timeout || isSilentUpdate.current) return;
-             timeout = setTimeout(() => {
-                 broadcast('SCROLL', { y: window.scrollY });
-                 timeout = null!;
-             }, 50);
+            if (timeout || isSilentUpdate.current) return;
+            timeout = setTimeout(() => {
+                broadcast('SCROLL', { y: window.scrollY });
+                timeout = null!;
+            }, 50);
         };
 
         const handleMouseMove = (e: MouseEvent) => {
@@ -228,7 +230,7 @@ const CoBrowseManager: React.FC = () => {
         let cursorTimeout: ReturnType<typeof setTimeout>;
 
         window.addEventListener('click', handleClick, true);
-        window.addEventListener('input', handleInput, true); 
+        window.addEventListener('input', handleInput, true);
         window.addEventListener('scroll', handleScroll);
         window.addEventListener('mousemove', handleMouseMove);
 
@@ -280,85 +282,78 @@ const CoBrowseManager: React.FC = () => {
             {/* Privacy Overlay for Guests */}
             <PrivacyOverlay isVisible={role === 'guest' && isPrivate} />
 
-            {/* Remote Partner Cursor (Heart Style) */}
-            {remoteCursor && sessionId && !isPrivate && (
-                <Box sx={{
-                    position: 'absolute',
-                    left: remoteCursor.x,
-                    top: remoteCursor.y,
-                    pointerEvents: 'none',
-                    zIndex: 9999,
-                    transform: 'translate(-50%, -50%)',
-                    transition: 'top 0.1s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.1s cubic-bezier(0.2, 0.8, 0.2, 1)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center'
-                }}>
-                    <Box sx={{ 
-                        filter: 'drop-shadow(0 2px 4px rgba(233,30,99,0.3))',
-                        animation: 'pulse 1.5s infinite ease-in-out',
-                        '@keyframes pulse': { '0%': { transform: 'scale(1)' }, '50%': { transform: 'scale(1.1)' }, '100%': { transform: 'scale(1)' } }
-                    }}>
-                        <svg width="30" height="30" viewBox="0 0 24 24" fill={themeColor}>
-                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                        </svg>
-                    </Box>
-                    <Box sx={{ mt: 0.5, bgcolor: themeColor, color: 'white', px: 1.5, py: 0.5, borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(233,30,99,0.2)' }}>
-                        {role === 'host' ? 'Partner (Invited)' : 'Partner (Host)'}
+            {/* Remote Cursor */}
+            {remoteCursor && !isPrivate && (
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        left: remoteCursor.x,
+                        top: remoteCursor.y,
+                        width: 12,
+                        height: 12,
+                        bgcolor: role === 'host' ? '#FF5722' : '#6C5DD3', // Diff colors for diff roles
+                        borderRadius: '50%',
+                        pointerEvents: 'none',
+                        zIndex: 9999,
+                        transform: 'translate(-50%, -50%)',
+                        boxShadow: '0 0 10px rgba(0,0,0,0.3)',
+                        transition: 'top 0.1s linear, left 0.1s linear'
+                    }}
+                >
+                     <Box 
+                        sx={{ 
+                            position: 'absolute', 
+                            top: 14, 
+                            left: 14, 
+                            bgcolor: '#2C2C2C', 
+                            color: 'white', 
+                            px: 1, 
+                            py: 0.5, 
+                            borderRadius: 1, 
+                            fontSize: '0.75rem',
+                            whiteSpace: 'nowrap'
+                        }}
+                    >
+                        {role === 'host' ? 'Guest' : 'Host'}
                     </Box>
                 </Box>
             )}
 
-            {/* Floating Couples Dock */}
-            <Box sx={{ position: 'fixed', bottom: 30, right: 30, zIndex: 1300, display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'end' }}>
-                {sessionId && (
-                    <Box sx={{ 
-                        ...glassStyle,
-                        px: 2, py: 1, borderRadius: '20px', display: 'flex', alignItems: 'center', gap: 1.5,
-                        animation: 'slideUp 0.3s ease-out',
-                        '@keyframes slideUp': { from: { opacity: 0, transform: 'translateY(20px)' }, to: { opacity: 1, transform: 'translateY(0)' } }
-                    }}>
-                        <Box sx={{ position: 'relative' }}>
-                            <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: status === 'connected' ? '#4CAF50' : '#FFC107', boxShadow: `0 0 0 4px ${status === 'connected' ? 'rgba(76,175,80,0.2)' : 'rgba(255,193,7,0.2)'}` }} />
-                        </Box>
-                        <Box>
-                            <Box sx={{ fontSize: '0.75rem', color: '#666', fontWeight: 500 }}>
-                                {role === 'host' ? 'Hosting Date Night' : 'Joined Date Night'}
-                            </Box>
-                            <Box sx={{ fontSize: '0.65rem', color: '#999', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 0.5, position: 'relative', '&:hover': { color: themeColor } }} 
-                                 onClick={handleCopy}>
-                                <span>ID: {sessionId}</span>
-                                <ContentCopyIcon sx={{ fontSize: 12 }} />
-                                
-                                {flyingHearts.map(h => (
-                                    <Box key={h.id} sx={{
-                                        position: 'absolute', left: '50%', bottom: '100%', ml: `${h.left}px`,
-                                        opacity: 0, fontSize: '1.2rem', pointerEvents: 'none',
-                                        animation: `flyUp 1s ease-out forwards ${h.delay}s`,
-                                        '@keyframes flyUp': { '0%': { transform: 'translateY(0) scale(0.5)', opacity: 1 }, '100%': { transform: 'translateY(-100px) scale(1.5)', opacity: 0 } }
-                                    }}>{h.emoji}</Box>
-                                ))}
-                            </Box>
-                        </Box>
-                        <IconButton size="small" onClick={() => setEndDialogOpen(true)} sx={{ ml: 1, color: '#999', '&:hover': { color: 'red', bgcolor: 'rgba(255,0,0,0.1)' } }}>
-                            <CloseIcon fontSize="small" />
-                        </IconButton>
-                    </Box>
-                )}
-
-                {!sessionId && (
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                         <Button variant="contained" onClick={() => setIsJoinDialogOpen(true)}
-                            sx={{ ...glassStyle, background: 'white', color: '#333', borderRadius: '30px', px: 3, py: 1.5, textTransform: 'none', fontWeight: 600, '&:hover': { background: '#f5f5f5' } }}
-                            startIcon={<LinkIcon />}
+            {/* Floating Control Panel */}
+            <Box sx={{ position: 'fixed', bottom: 20, right: 20, zIndex: 1300, display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'end' }}>
+                <Chip 
+                    label={`Status: ${status}`} 
+                    size="small" 
+                    color={status === 'connected' ? 'success' : status === 'connecting' ? 'warning' : 'default'} 
+                    sx={{ bgcolor: 'white', fontWeight: 600 }}
+                />
+                
+                {sessionId ? (
+                    <Chip 
+                        icon={<SupervisorAccountIcon />} 
+                        label={`${role === 'host' ? 'Hosting' : 'Guest'} Session: ${sessionId}`} 
+                        color="primary" 
+                        onDelete={() => { navigator.clipboard.writeText(sessionId); alert('Session ID copied!'); }}
+                    />
+                ) : (
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Button 
+                            variant="contained" 
+                            startIcon={<SupervisorAccountIcon />} 
+                            disabled={status === 'connecting'}
+                            onClick={createSession}
+                            sx={{ borderRadius: 20, bgcolor: '#2C2C2C' }}
                         >
-                            Join Partner
+                            Start Host
                         </Button>
-                        <Button variant="contained" onClick={createSession} disabled={status === 'connecting'}
-                            sx={{ bgcolor: themeColor, color: 'white', borderRadius: '30px', px: 3, py: 1.5, textTransform: 'none', fontWeight: 600, boxShadow: '0 8px 20px rgba(233,30,99,0.3)', '&:hover': { bgcolor: '#D81B60' }, display: 'flex', gap: 1 }}
+                        <Button 
+                            variant="outlined" 
+                            startIcon={<LinkIcon />} 
+                            disabled={status === 'connecting'}
+                            onClick={() => setIsJoinDialogOpen(true)}
+                            sx={{ borderRadius: 20, bgcolor: 'white', color: '#2C2C2C', borderColor: '#2C2C2C' }}
                         >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                            Shop Together
+                            Join
                         </Button>
                     </Box>
                 )}

@@ -13,6 +13,7 @@ export interface ShippingInfo {
   zipCode: string;
   country: string;
   shippingMethod: 'standard' | 'express' | 'overnight';
+  shippingCost: number;
 }
 
 export interface Order {
@@ -85,13 +86,13 @@ export const CheckoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
 
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    
+
     const shippingCosts = {
       standard: subtotal >= 200 ? 0 : 0,
       express: subtotal >= 200 ? 0 : 15,
       overnight: subtotal >= 200 ? 0 : 30
     };
-    
+
     const shippingCost = shippingCosts[shippingInfo.shippingMethod];
 
     const order: Order = {
@@ -107,10 +108,10 @@ export const CheckoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     setCurrentOrder(order);
-    
+
     const newHistory = [order, ...orderHistory];
     setOrderHistory(newHistory);
-    
+
     try {
       localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(newHistory));
     } catch (error) {
