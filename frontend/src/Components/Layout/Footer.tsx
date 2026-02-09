@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Container, Typography, Stack, IconButton } from '@mui/material';
+import { Box, Container, Typography, Stack, IconButton, TextField, Button } from '@mui/material';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import FacebookIcon from '@mui/icons-material/Facebook';
@@ -66,7 +66,7 @@ const Footer: React.FC = () => {
         {/* Socials & Bottom */}
         <Box sx={{ mt: 8, pt: 4, borderTop: '1px solid #eee', display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
           <Typography variant="caption" sx={{ color: '#999' }}>© 2024 Aether. All layout rights reserved.</Typography>
-          
+
           <Stack direction="row" spacing={1}>
             <IconButton size="small" sx={{ color: '#999', '&:hover': { color: 'black' } }}><FacebookIcon fontSize="small" /></IconButton>
             <IconButton size="small" sx={{ color: '#999', '&:hover': { color: 'black' } }}><TwitterIcon fontSize="small" /></IconButton>
@@ -75,18 +75,18 @@ const Footer: React.FC = () => {
           </Stack>
 
           <Box sx={{ display: 'flex', gap: 1 }}>
-             {/* Simple payment boxes placeholder */}
-             {['VISA', 'MC', 'AMEX', 'PAYPAL'].map(p => (
-               <Box key={p} sx={{ bgcolor: '#eee', px: 1, py: 0.5, fontSize: '0.6rem', fontWeight: 700, color: '#666', borderRadius: 0.5 }}>
-                 {p}
-               </Box>
-             ))}
+            {/* Simple payment boxes placeholder */}
+            {['VISA', 'MC', 'AMEX', 'PAYPAL'].map(p => (
+              <Box key={p} sx={{ bgcolor: '#eee', px: 1, py: 0.5, fontSize: '0.6rem', fontWeight: 700, color: '#666', borderRadius: 0.5 }}>
+                {p}
+              </Box>
+            ))}
           </Box>
         </Box>
       </Container>
 
-      
-      
+
+
       {/* Background Decorative Logo */}
       <Box
         component="img"

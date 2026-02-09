@@ -8,11 +8,11 @@ import { useAuth } from '../../context/AuthContext';
 const OTPVerification: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { login } = useAuth();
+    const { } = useAuth();
 
     // Get email from navigation state
     const email = location.state?.email || '';
-    const name = location.state?.name || '';
+
 
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [error, setError] = useState('');

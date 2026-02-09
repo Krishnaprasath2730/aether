@@ -1,11 +1,11 @@
 import React from 'react';
-import { Box, Container, Typography, Button } from '@mui/material';
+import { Box, Container, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 
 const Categories: React.FC = () => {
   const navigate = useNavigate();
-  const { isDarkMode } = useTheme();
+  const { } = useTheme();
 
   const categories = [
     {
@@ -17,7 +17,7 @@ const Categories: React.FC = () => {
     {
       title: 'MEN',
       subtitle: 'ESSENTIALS',
-      image:' https://i.pinimg.com/1200x/53/29/2a/53292afc709e42ee45061d4a21939540.jpg',
+      image: ' https://i.pinimg.com/1200x/53/29/2a/53292afc709e42ee45061d4a21939540.jpg',
       link: '/shop?category=Men'
     },
     {
@@ -33,9 +33,9 @@ const Categories: React.FC = () => {
       <Container maxWidth="xl">
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, justifyContent: 'center' }}>
           {categories.map((cat) => (
-            <Box 
+            <Box
               key={cat.title}
-              sx={{ 
+              sx={{
                 flex: { xs: '1 1 100%', sm: '1 1 30%' },
                 position: 'relative',
                 height: 300,

@@ -58,8 +58,6 @@ interface Client {
 const clients = new Map<WebSocket, Client>();
 
 // Connect to MongoDB
-
-
 const Start_Server = async () => {
 
     try {

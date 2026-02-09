@@ -1,15 +1,13 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Snackbar, Alert, IconButton } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Snackbar, Alert, Chip } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCoBrowse } from './CoBrowseContext';
-import { useAuth } from '../../../context/AuthContext';
 import PrivacyOverlay from './PrivacyOverlay';
 import LinkIcon from '@mui/icons-material/Link';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import CloseIcon from '@mui/icons-material/Close';
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 
 const CoBrowseManager: React.FC = () => {
-    const { role, sessionId, status, createSession, joinSession, broadcast, lastEvent } = useCoBrowse();
+    const { role, sessionId, status, createSession, joinSession, endSession, broadcast, lastEvent } = useCoBrowse();
     const location = useLocation();
     const navigate = useNavigate();
     const [isPrivate, setIsPrivate] = useState(false);
@@ -17,11 +15,10 @@ const CoBrowseManager: React.FC = () => {
     const [endDialogOpen, setEndDialogOpen] = useState(false);
     const [showCopySuccess, setShowCopySuccess] = useState(false);
     const [joinInputId, setJoinInputId] = useState('');
-    const [remoteCursor, setRemoteCursor] = useState<{x: number, y: number} | null>(null);
-    const [flyingHearts, setFlyingHearts] = useState<{id: number, left: number, delay: number, emoji: string}[]>([]);
+    const [remoteCursor, setRemoteCursor] = useState<{ x: number, y: number } | null>(null);
 
     // ... (keep existing code up to handleJoin) ...
-    
+
     // Privacy Logic: Check URL
     useEffect(() => {
         const privatePaths = ['/checkout', '/account', '/profile'];
@@ -60,21 +57,7 @@ const CoBrowseManager: React.FC = () => {
         return path.join(' > ');
     };
 
-    // Helper to spawn hearts/emojis
-    const spawnHearts = useCallback(() => {
-        const emojis = ['😍', '😘', '💕', '❤️'];
-        const newHearts = Array.from({ length: 15 }).map((_, i) => ({
-            id: Date.now() + i,
-            left: Math.random() * 100 - 50,
-            delay: Math.random() * 0.8,
-            emoji: emojis[Math.floor(Math.random() * emojis.length)]
-        }));
-        setFlyingHearts(prev => [...prev, ...newHearts]);
-        
-        setTimeout(() => {
-            setFlyingHearts(prev => prev.filter(h => !newHearts.find(nh => nh.id === h.id)));
-        }, 2500);
-    }, []);
+
 
     // Inbound Events (Listen)
     useEffect(() => {
@@ -148,21 +131,21 @@ const CoBrowseManager: React.FC = () => {
         }
 
         if (lastEvent.type === 'PEER_DISCONNECTED') {
-             setRemoteCursor(null);
-             // Optional: Show a message that partner left?
-             // alert("Partner disconnected");
+            setRemoteCursor(null);
+            // Optional: Show a message that partner left?
+            // alert("Partner disconnected");
         }
 
         // Trigger hearts on join
         if (lastEvent.type === 'SESSION_JOINED' || lastEvent.type === 'GUEST_JOINED') {
-             spawnHearts();
+            // spawnHearts();
         }
 
-    }, [lastEvent, role, navigate, location.pathname, spawnHearts]);
+    }, [lastEvent, role, navigate, location.pathname]);
 
     // Outbound Events (Broadcast)
     useEffect(() => {
-        if (!sessionId) return; 
+        if (!sessionId) return;
 
         // Navigation Broadcast
         const privatePaths = ['/checkout', '/account', '/profile'];
@@ -200,14 +183,14 @@ const CoBrowseManager: React.FC = () => {
 
             if (target.closest && (target.closest('.MuiDialog-root') || target.closest('.MuiChip-root'))) return;
 
-             const selector = getCssSelector(target);
-             console.log("Broadcasting Click:", selector);
-             
-             broadcast('CLICK', { 
-                 selector, 
-                 x: e.pageX, 
-                 y: e.pageY 
-             });
+            const selector = getCssSelector(target);
+            console.log("Broadcasting Click:", selector);
+
+            broadcast('CLICK', {
+                selector,
+                x: e.pageX,
+                y: e.pageY
+            });
         };
 
         const handleScroll = () => {
@@ -225,7 +208,7 @@ const CoBrowseManager: React.FC = () => {
                 cursorTimeout = null!;
             }, 30);
         };
-        
+
         let timeout: ReturnType<typeof setTimeout>;
         let cursorTimeout: ReturnType<typeof setTimeout>;
 
@@ -251,31 +234,19 @@ const CoBrowseManager: React.FC = () => {
         }
     };
 
-    const handleCopy = () => {
-        if (sessionId) {
-            navigator.clipboard.writeText(sessionId);
-            setShowCopySuccess(true);
-            spawnHearts();
-        }
-    };
+
 
     const handleEndSession = () => {
         endSession();
         setRemoteCursor(null);
         setEndDialogOpen(false);
     };
-    
+
     // Loop prevention flag
     const isSilentUpdate = React.useRef(false);
 
     // Couples Theme Colors
     const themeColor = '#E91E63'; // Pink/Rose
-    const glassStyle = {
-        background: 'rgba(255, 255, 255, 0.8)',
-        backdropFilter: 'blur(12px)',
-        border: '1px solid rgba(255, 255, 255, 0.3)',
-        boxShadow: '0 8px 32px rgba(233, 30, 99, 0.15)',
-    };
 
     return (
         <>
@@ -300,16 +271,16 @@ const CoBrowseManager: React.FC = () => {
                         transition: 'top 0.1s linear, left 0.1s linear'
                     }}
                 >
-                     <Box 
-                        sx={{ 
-                            position: 'absolute', 
-                            top: 14, 
-                            left: 14, 
-                            bgcolor: '#2C2C2C', 
-                            color: 'white', 
-                            px: 1, 
-                            py: 0.5, 
-                            borderRadius: 1, 
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: 14,
+                            left: 14,
+                            bgcolor: '#2C2C2C',
+                            color: 'white',
+                            px: 1,
+                            py: 0.5,
+                            borderRadius: 1,
                             fontSize: '0.75rem',
                             whiteSpace: 'nowrap'
                         }}
@@ -321,34 +292,34 @@ const CoBrowseManager: React.FC = () => {
 
             {/* Floating Control Panel */}
             <Box sx={{ position: 'fixed', bottom: 20, right: 20, zIndex: 1300, display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'end' }}>
-                <Chip 
-                    label={`Status: ${status}`} 
-                    size="small" 
-                    color={status === 'connected' ? 'success' : status === 'connecting' ? 'warning' : 'default'} 
+                <Chip
+                    label={`Status: ${status}`}
+                    size="small"
+                    color={status === 'connected' ? 'success' : status === 'connecting' ? 'warning' : 'default'}
                     sx={{ bgcolor: 'white', fontWeight: 600 }}
                 />
-                
+
                 {sessionId ? (
-                    <Chip 
-                        icon={<SupervisorAccountIcon />} 
-                        label={`${role === 'host' ? 'Hosting' : 'Guest'} Session: ${sessionId}`} 
-                        color="primary" 
+                    <Chip
+                        icon={<SupervisorAccountIcon />}
+                        label={`${role === 'host' ? 'Hosting' : 'Guest'} Session: ${sessionId}`}
+                        color="primary"
                         onDelete={() => { navigator.clipboard.writeText(sessionId); alert('Session ID copied!'); }}
                     />
                 ) : (
                     <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Button 
-                            variant="contained" 
-                            startIcon={<SupervisorAccountIcon />} 
+                        <Button
+                            variant="contained"
+                            startIcon={<SupervisorAccountIcon />}
                             disabled={status === 'connecting'}
                             onClick={createSession}
                             sx={{ borderRadius: 20, bgcolor: '#2C2C2C' }}
                         >
                             Start Host
                         </Button>
-                        <Button 
-                            variant="outlined" 
-                            startIcon={<LinkIcon />} 
+                        <Button
+                            variant="outlined"
+                            startIcon={<LinkIcon />}
                             disabled={status === 'connecting'}
                             onClick={() => setIsJoinDialogOpen(true)}
                             sx={{ borderRadius: 20, bgcolor: 'white', color: '#2C2C2C', borderColor: '#2C2C2C' }}
@@ -366,12 +337,12 @@ const CoBrowseManager: React.FC = () => {
                 onClose={() => setShowCopySuccess(false)}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             >
-                <Alert 
-                    onClose={() => setShowCopySuccess(false)} 
+                <Alert
+                    onClose={() => setShowCopySuccess(false)}
                     icon={<span style={{ fontSize: '1.2rem' }}>💌</span>}
-                    sx={{ 
-                        width: '100%', 
-                        bgcolor: 'white', 
+                    sx={{
+                        width: '100%',
+                        bgcolor: 'white',
                         color: '#333',
                         fontWeight: 600,
                         border: '1px solid rgba(233,30,99,0.2)',
