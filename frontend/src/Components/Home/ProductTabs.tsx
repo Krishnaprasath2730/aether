@@ -19,28 +19,77 @@ const ProductTabs: React.FC = () => {
     }
   };
 
+  const tabStyle = {
+    textTransform: 'uppercase', 
+    color: '#999', 
+    fontSize: '0.85rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    opacity: 0.8,
+    letterSpacing: '1px',
+    position: 'relative',
+    transition: 'all 0.3s ease',
+    px: 3,
+    '&:hover': { opacity: 1, color: 'black' },
+    '&.Mui-selected': { color: 'black', opacity: 1 },
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      bottom: 8,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: 0,
+      height: 2,
+      bgcolor: '#D5A249',
+      transition: 'width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+    },
+    '&:hover::after': { width: '40%' },
+    '&.Mui-selected::after': { width: '40%' }
+  };
+
   return (
-    <Box sx={{ py: 8 }}>
+    <Box sx={{ py: { xs: 5, md: 10 } }}>
       <Container maxWidth="xl">
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 6 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: { xs: 4, md: 8 } }}>
           <Tabs 
             value={value} 
             onChange={handleChange} 
             centered
             sx={{
               '& .MuiTabs-indicator': { display: 'none' },
-              '& .Mui-selected': { color: 'black !important', fontWeight: 700 }
+              '& .MuiTabs-flexContainer': { gap: { xs: 1, md: 4 } },
+              '& .MuiTabs-scroller': { overflow: { xs: 'auto !important', md: 'hidden !important' } }
             }}
           >
-            <Tab label="New Products" sx={{ textTransform: 'none', color: '#999', fontSize: '1rem' }} />
-            <Tab label="Special Products" sx={{ textTransform: 'none', color: '#999', fontSize: '1rem', px: 4 }} />
-            <Tab label="Featured Products" sx={{ textTransform: 'none', color: '#999', fontSize: '1rem' }} />
+            <Tab label="New Products" sx={tabStyle} disableRipple />
+            <Tab label="Special Products" sx={tabStyle} disableRipple />
+            <Tab label="Featured Products" sx={tabStyle} disableRipple />
           </Tabs>
         </Box>
 
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 4 }}>
-          {getProducts().map(product => (
-            <ProductCard key={product.id} {...product} />
+        <Box 
+          sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, 
+            gap: { xs: 2, md: 4 },
+            animation: 'fadeIn 0.5s ease-in-out',
+            '@keyframes fadeIn': {
+              '0%': { opacity: 0, transform: 'translateY(20px)' },
+              '100%': { opacity: 1, transform: 'translateY(0)' }
+            }
+          }}
+          key={value} // Re-trigger animation on tab change
+        >
+          {getProducts().map((product, index) => (
+            <Box 
+              key={product.id} 
+              sx={{ 
+                opacity: 0, 
+                animation: `fadeIn 0.5s ease-in-out ${index * 0.1}s forwards` // Staggered animation
+              }}
+            >
+              <ProductCard {...product} />
+            </Box>
           ))}
         </Box>
       </Container>

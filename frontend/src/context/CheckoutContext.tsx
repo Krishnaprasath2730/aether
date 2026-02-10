@@ -12,7 +12,7 @@ export interface ShippingInfo {
   state: string;
   zipCode: string;
   country: string;
-  shippingMethod: 'standard' | 'express' | 'overnight';
+  shippingMethod: 'standard' | 'express';
   shippingCost: number;
 }
 
@@ -24,7 +24,7 @@ export interface Order {
   subtotal: number;
   shippingCost: number;
   total: number;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered';
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   createdAt: string;
 }
 
@@ -35,6 +35,7 @@ interface CheckoutContextType {
   createOrder: (items: CartItem[], paymentMethod: string) => Order;
   clearCheckout: () => void;
   orderHistory: Order[];
+  cancelOrder: (orderId: string) => void;
 }
 
 const CheckoutContext = createContext<CheckoutContextType | null>(null);
@@ -87,22 +88,24 @@ export const CheckoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-    const shippingCosts = {
-      standard: subtotal >= 200 ? 0 : 0,
-      express: subtotal >= 200 ? 0 : 15,
-      overnight: subtotal >= 200 ? 0 : 30
-    };
+    // Default to the cost calculated in Shipping step (distance based)
+    let finalShippingCost = shippingInfo.shippingCost;
 
-    const shippingCost = shippingCosts[shippingInfo.shippingMethod];
+    // Apply Free Shipping Logic
+    if (shippingInfo.shippingMethod === 'standard' && subtotal >= 300) {
+      finalShippingCost = 0;
+    } else if (shippingInfo.shippingMethod === 'express' && subtotal >= 600) {
+      finalShippingCost = 0;
+    }
 
     const order: Order = {
       id: generateOrderId(),
       items: [...items],
-      shippingInfo,
+      shippingInfo: { ...shippingInfo, shippingCost: finalShippingCost },
       paymentMethod,
       subtotal,
-      shippingCost,
-      total: subtotal + shippingCost,
+      shippingCost: finalShippingCost,
+      total: subtotal + finalShippingCost,
       status: 'processing',
       createdAt: new Date().toISOString()
     };
@@ -125,14 +128,39 @@ export const CheckoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setCurrentOrder(null);
   }, []);
 
+  const cancelOrder = useCallback((orderId: string) => {
+    setOrderHistory(prevHistory => {
+      const updatedHistory = prevHistory.map(order => 
+        order.id === orderId 
+          ? { ...order, status: 'cancelled' as const } 
+          : order
+      );
+      
+      try {
+        localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(updatedHistory));
+      } catch (error) {
+        console.error('Failed to save order history:', error);
+      }
+      
+      return updatedHistory;
+    });
+
+    setCurrentOrder(curr => 
+      curr && curr.id === orderId 
+        ? { ...curr, status: 'cancelled' as const } 
+        : curr
+    );
+  }, []);
+
   const value = useMemo(() => ({
     shippingInfo,
     setShippingInfo,
     currentOrder,
     createOrder,
     clearCheckout,
-    orderHistory
-  }), [shippingInfo, setShippingInfo, currentOrder, createOrder, clearCheckout, orderHistory]);
+    orderHistory,
+    cancelOrder
+  }), [shippingInfo, setShippingInfo, currentOrder, createOrder, clearCheckout, orderHistory, cancelOrder]);
 
   return (
     <CheckoutContext.Provider value={value}>

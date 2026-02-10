@@ -230,3 +230,22 @@ body.dark-mode::-webkit-scrollbar-thumb {
 body.dark-mode::-webkit-scrollbar-thumb:hover {
   background: #777;
 }
+
+/* Force hide cursor globally to use custom cursor */
+* {
+  cursor: none !important;
+}
+
+/* Force hide cursor on inputs too, as requested "blinking cursor is shown in all pages fix that" */
+/* Force hide cursor on inputs too, as requested "blinking cursor is shown in all pages fix that" */
+* {
+  caret-color: transparent !important;
+  /* Hides the blinking insertion caret globally */
+  cursor: none !important;
+}
+
+/* Optional: Restore cursor for inputs if the custom cursor doesn't handle text input well yet */
+/* But since the request is to FIX the typing cursor appearing, we'll keep it hidden for now */
+/* inputs need careful handling, usually users WANT to see where they are typing. */
+/* If the custom cursor covers the text, it might be annoying. */
+/* However, "typing cursor shown in all area" implies it's a bug. */

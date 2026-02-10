@@ -59,7 +59,7 @@ const Brands: React.FC = () => {
   const isPaused = localHover || remoteHover;
 
   return (
-    <Box sx={{ py: 6, borderTop: '1px solid #eee', borderBottom: '1px solid #eee', overflow: 'hidden' }}>
+    <Box sx={{ py: { xs: 3, md: 6 }, borderTop: '1px solid #eee', borderBottom: '1px solid #eee', overflow: 'hidden' }}>
       <Container maxWidth={false} sx={{ px: 0 }}>
         <Box 
           onMouseEnter={handleMouseEnter}
@@ -79,9 +79,9 @@ const Brands: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                minWidth: 180,
-                height: 60,
-                mx: 4,
+                minWidth: { xs: 120, sm: 180 },
+                height: { xs: 50, sm: 60 },
+                mx: { xs: 2, md: 4 },
                 opacity: 0.5,
                 filter: 'grayscale(100%)',
                 transition: 'all 0.3s ease',

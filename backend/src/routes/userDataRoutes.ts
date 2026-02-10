@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import UserCart from '../models/UserCart';
 import UserWishlist from '../models/UserWishlist';
+import User from '../models/User';
 import { authMiddleware, AuthRequest } from '../middleware/authMiddleware';
 
 const router = express.Router();
@@ -135,8 +136,7 @@ router.post('/profile-photo', authMiddleware, async (req: AuthRequest, res: Resp
             return;
         }
 
-        // Import User model
-        const User = (await import('../models/User')).default;
+        console.log(`Updating profile photo for user: ${req.userId}`);
 
         const user = await User.findByIdAndUpdate(
             req.userId,
@@ -162,7 +162,7 @@ router.post('/profile-photo', authMiddleware, async (req: AuthRequest, res: Resp
 // Delete profile photo
 router.delete('/profile-photo', authMiddleware, async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const User = (await import('../models/User')).default;
+        console.log(`Deleting profile photo for user: ${req.userId}`);
 
         const user = await User.findByIdAndUpdate(
             req.userId,

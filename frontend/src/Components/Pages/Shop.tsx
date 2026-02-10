@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Box, Container, Typography, Chip, TextField, InputAdornment, MenuItem, Select, FormControl, InputLabel, Slider, Drawer, IconButton, Button, Pagination } from '@mui/material';
+import { Box, Container, Typography, Chip, TextField, InputAdornment, MenuItem, Select, FormControl, InputLabel, Slider, Drawer, IconButton, Button, Pagination, InputBase } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -18,12 +18,15 @@ const Shop: React.FC = () => {
 
   // Get initial values from URL params
   const initialCategory = searchParams.get('category') || 'All';
+  const initialSubCategory = searchParams.get('sub');
   const initialSearch = searchParams.get('search') || '';
 
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+  const [selectedSubCategory, setSelectedSubCategory] = useState(initialSubCategory);
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [sortBy, setSortBy] = useState('featured');
-  const [priceRange, setPriceRange] = useState<number[]>([0, 500]);
+  const [priceRange, setPriceRange] = useState<number[]>([0, 50000]);
+  const [localPriceRange, setLocalPriceRange] = useState<number[]>([0, 50000]);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -31,14 +34,20 @@ const Shop: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams();
     if (selectedCategory !== 'All') params.set('category', selectedCategory);
+    if (selectedSubCategory) params.set('sub', selectedSubCategory); // Sync sub-category
     if (searchQuery) params.set('search', searchQuery);
     setSearchParams(params, { replace: true });
-  }, [selectedCategory, searchQuery, setSearchParams]);
+  }, [selectedCategory, selectedSubCategory, searchQuery, setSearchParams]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, searchQuery, sortBy, priceRange]);
+  }, [selectedCategory, selectedSubCategory, searchQuery, sortBy, priceRange]);
+
+  // Sync local slider state when filters are cleared or changed externally
+  useEffect(() => {
+        setLocalPriceRange(priceRange);
+  }, [priceRange]);
 
   const filteredProducts = useMemo(() => {
     let result = [...products];
@@ -48,11 +57,11 @@ const Shop: React.FC = () => {
       result = result.filter(p => p.isRefurbished);
     } else if (selectedCategory !== 'All') {
       result = result.filter(p => p.category.toLowerCase() === selectedCategory.toLowerCase());
-      // Exclude refurbished from standard categories unless specified? 
-      // Usually standard shop might mix them or hide them. 
-      // For now, let's keep standard behavior: if it has category 'Women', it shows in 'Women'.
-      // But if user explicitly wants 'Hub' separate, maybe we should filter OUT refurbished from other cats?
-      // User didn't ask to hide them, just to show them in Hub. I'll stick to basic filtering.
+    }
+
+    // Filter by sub-category
+    if (selectedSubCategory) {
+      result = result.filter(p => p.subCategory === selectedSubCategory);
     }
 
     // Filter by search
@@ -61,6 +70,7 @@ const Shop: React.FC = () => {
       result = result.filter(p =>
         p.name.toLowerCase().includes(query) ||
         p.category.toLowerCase().includes(query) ||
+        (p.subCategory && p.subCategory.toLowerCase().includes(query)) || // Include subCategory in search
         p.description.toLowerCase().includes(query) ||
         p.colors.some(c => c.toLowerCase().includes(query))
       );
@@ -108,17 +118,19 @@ const Shop: React.FC = () => {
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
+    setSelectedSubCategory(null); // Clear sub-category when changing main category
     setMobileFiltersOpen(false);
   };
 
   const handleClearFilters = () => {
     setSelectedCategory('All');
+    setSelectedSubCategory(null);
     setSearchQuery('');
-    setPriceRange([0, 500]);
+    setPriceRange([0, 50000]);
     setSortBy('featured');
   };
 
-  const hasActiveFilters = selectedCategory !== 'All' || searchQuery || priceRange[0] > 0 || priceRange[1] < 500;
+  const hasActiveFilters = selectedCategory !== 'All' || selectedSubCategory || searchQuery || priceRange[0] > 0 || priceRange[1] < 50000;
 
   const FilterContent = () => (
     <Box sx={{ p: { xs: 3, md: 0 } }}>
@@ -132,23 +144,158 @@ const Shop: React.FC = () => {
       </Box>
 
       {/* Price Range */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 2 }}>Price Range</Typography>
-        <Slider
-          value={priceRange}
-          onChange={(_, value) => setPriceRange(value as number[])}
-          valueLabelDisplay="auto"
-          min={0}
-          max={500}
-          sx={{
-            color: '#D5A249',
-            '& .MuiSlider-thumb': { bgcolor: '#D5A249' },
-            '& .MuiSlider-track': { bgcolor: '#D5A249' }
-          }}
-        />
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant="caption" fontWeight={600}>${priceRange[0]}</Typography>
-          <Typography variant="caption" fontWeight={600}>${priceRange[1]}</Typography>
+      <Box sx={{ mb: 5 }}>
+        <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 3, letterSpacing: 0.5 }}>PRICE RANGE</Typography>
+        
+        <Box sx={{ px: 1 }}>
+            <Slider
+              value={localPriceRange}
+              onChange={(_, value) => setLocalPriceRange(value as number[])}
+              onChangeCommitted={(_, value) => setPriceRange(value as number[])}
+              valueLabelDisplay="auto"
+              min={0}
+              max={50000}
+              disableSwap
+              sx={{
+                color: isDarkMode ? '#D5A249' : '#2C2C2C',
+                height: 3,
+                padding: '13px 0',
+                '& .MuiSlider-thumb': {
+                  height: 20,
+                  width: 20,
+                  backgroundColor: isDarkMode ? '#D5A249' : '#2C2C2C',
+                  border: 'none',
+                  boxShadow: 'none',
+                  transition: '0.2s ease',
+                  // Ensure we don't animate 'left' or 'transform' which interferes with dragging
+                  transitionProperty: 'width, height, box-shadow, background-color',
+                  '&:before': { 
+                      display: 'none' 
+                  },
+                  '&:hover, &.Mui-active': {
+                    boxShadow: '0 0 0 8px rgba(213, 162, 73, 0.1)',
+                    width: 24,
+                    height: 24,
+                  },
+                },
+                '& .MuiSlider-valueLabel': {
+                  lineHeight: 1.2,
+                  fontSize: 12,
+                  background: 'unset',
+                  padding: 0,
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50% 50% 50% 0',
+                  backgroundColor: isDarkMode ? '#D5A249' : '#2C2C2C',
+                  transformOrigin: 'bottom left',
+                  transform: 'translate(50%, -100%) rotate(-45deg) scale(0)',
+                  '&:before': { display: 'none' },
+                  '&.MuiSlider-valueLabelOpen': {
+                    transform: 'translate(50%, -100%) rotate(-45deg) scale(1)',
+                  },
+                  '& > *': {
+                    transform: 'rotate(45deg)',
+                  },
+                },
+                '& .MuiSlider-track': {
+                  border: 'none',
+                  height: 3,
+                },
+                '& .MuiSlider-rail': {
+                  opacity: 0.3,
+                  backgroundColor: 'text.secondary',
+                  height: 3,
+                },
+              }}
+            />
+        </Box>
+
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+            <Box sx={{ 
+                border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #eee', 
+                borderRadius: 2, 
+                px: 2, 
+                py: 1,
+                minWidth: 80
+            }}>
+                 <Typography variant="caption" color="text.secondary" display="block">Min</Typography>
+                 <Box display="flex" alignItems="center">
+                    <Typography variant="body2" fontWeight={600} mr={0.5}>₹</Typography>
+                    <InputBase
+                        value={localPriceRange[0]}
+                        onChange={(e) => {
+                            const val = Number(e.target.value);
+                            if (!isNaN(val) && val >= 0 && val <= 50000) {
+                                setLocalPriceRange([val, localPriceRange[1]]);
+                            }
+                        }}
+                        onBlur={() => {
+                             if(localPriceRange[0] > localPriceRange[1]) {
+                                 setLocalPriceRange([localPriceRange[1], localPriceRange[1]]);
+                                 setPriceRange([localPriceRange[1], localPriceRange[1]]);
+                             } else {
+                                 setPriceRange(localPriceRange); 
+                             }
+                        }}
+                        inputProps={{
+                            min: 0,
+                            max: 50000,
+                            type: 'number',
+                            style: { 
+                                padding: 0, 
+                                fontWeight: 600, 
+                                fontSize: '0.875rem', 
+                                color: isDarkMode ? 'white' : 'text.primary' 
+                            }
+                        }}
+                        sx={{ color: 'inherit' }}
+                    />
+                 </Box>
+            </Box>
+            <Box sx={{ width: 10, height: 1, bgcolor: 'text.disabled' }} />
+            <Box sx={{ 
+                border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #eee', 
+                borderRadius: 2, 
+                px: 2, 
+                py: 1,
+                minWidth: 80,
+                textAlign: 'right'
+            }}>
+                 <Typography variant="caption" color="text.secondary" display="block">Max</Typography>
+                 <Box display="flex" alignItems="center" justifyContent="flex-end">
+                    <Typography variant="body2" fontWeight={600} mr={0.5}>₹</Typography>
+                    <InputBase
+                        value={localPriceRange[1]}
+                        onChange={(e) => {
+                            const val = Number(e.target.value);
+                            if (!isNaN(val) && val >= 0 && val <= 50000) {
+                                setLocalPriceRange([localPriceRange[0], val]);
+                            }
+                        }}
+                        onBlur={() => {
+                             if(localPriceRange[1] < localPriceRange[0]) {
+                                 setLocalPriceRange([localPriceRange[0], localPriceRange[0]]);
+                                 setPriceRange([localPriceRange[0], localPriceRange[0]]);
+                             } else {
+                                 setPriceRange(localPriceRange);
+                             }
+                        }}
+                        inputProps={{
+                            min: 0,
+                            max: 50000,
+                            type: 'number',
+                            style: { 
+                                padding: 0, 
+                                fontWeight: 600, 
+                                fontSize: '0.875rem', 
+                                textAlign: 'right',
+                                color: isDarkMode ? 'white' : 'text.primary'
+                            }
+                        }}
+                        sx={{ color: 'inherit' }}
+                    />
+                 </Box>
+            </Box>
         </Box>
       </Box>
 
@@ -195,6 +342,11 @@ const Shop: React.FC = () => {
           <Typography variant="h2" fontWeight={800} sx={{ mt: 1, fontFamily: '"Playfair Display", serif' }}>
             {selectedCategory === 'All' ? 'Shop All' : selectedCategory === 'Hub' ? 'Outlet Hub' : selectedCategory}
           </Typography>
+          {selectedSubCategory && (
+            <Typography variant="h5" sx={{ mt: 1, color: '#D5A249', fontFamily: '"Playfair Display", serif' }}>
+              {selectedSubCategory}
+            </Typography>
+          )}
           <Typography variant="body1" sx={{ opacity: 0.8, mt: 2 }}>
             {selectedCategory === 'Hub'
               ? 'Premium returned items, professionally inspected and verified.'
@@ -225,6 +377,21 @@ const Shop: React.FC = () => {
                 }}
               />
             ))}
+            {selectedSubCategory && (
+              <Chip
+                label={selectedSubCategory}
+                onDelete={() => setSelectedSubCategory(null)}
+                sx={{
+                  bgcolor: isDarkMode ? '#D4AF37' : '#2C2C2C',
+                  color: isDarkMode ? '#121212' : 'white',
+                  fontWeight: 600,
+                  '& .MuiChip-deleteIcon': {
+                    color: isDarkMode ? '#121212' : 'white',
+                    '&:hover': { color: isDarkMode ? '#333' : '#ddd' }
+                  }
+                }}
+              />
+            )}
           </Box>
 
           {/* Mobile Filter Button */}
@@ -352,8 +519,8 @@ const Shop: React.FC = () => {
                     <Box
                       key={product.id}
                       sx={{
-                        flex: { xs: '1 1 45%', sm: '1 1 30%', lg: '1 1 22%' },
-                        maxWidth: { xs: '48%', sm: '32%', lg: '24%' }
+                        flex: { xs: '0 0 calc(50% - 12px)', sm: '1 1 30%', lg: '1 1 22%' },
+                        maxWidth: { xs: 'calc(50% - 12px)', sm: '32%', lg: '24%' }
                       }}
                     >
                       <ProductCard {...product} />

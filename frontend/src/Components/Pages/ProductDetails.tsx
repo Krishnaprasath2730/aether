@@ -13,7 +13,10 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { getProductById, products } from '../../data/products';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { useAutoPurchase } from '../../context/AutoPurchaseContext';
 import ProductCard from '../Product/ProductCard';
+import AutoPurchaseDialog from '../Features/AutoPurchaseDialog';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +33,8 @@ const ProductDetails: React.FC = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'warning'>('success');
   const [activeTab, setActiveTab] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [autoPurchaseDialogOpen, setAutoPurchaseDialogOpen] = useState(false);
+  const { isMonitoring } = useAutoPurchase();
 
   // Simulate loading and fetch product
   useEffect(() => {
@@ -153,7 +158,7 @@ const ProductDetails: React.FC = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'white' }}>
-      <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 4 } }}>
         {/* Breadcrumbs */}
         <Breadcrumbs sx={{ mb: 4 }}>
           <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Home</Link>
@@ -224,12 +229,46 @@ const ProductDetails: React.FC = () => {
               <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: 2 }}>
                 {product.category}
               </Typography>
-              <Typography variant="h3" fontWeight={800} sx={{ mt: 1, mb: 2 }}>
+              <Typography variant="h3" fontWeight={800} sx={{ mt: 1, mb: 2, fontSize: { xs: '1.5rem', sm: '2rem', md: '3rem' } }}>
                 {product.name}
               </Typography>
-              <Typography variant="h4" fontWeight={700} sx={{ color: '#D5A249', mb: 3 }}>
-                ${product.price.toFixed(2)}
+              <Typography variant="h4" fontWeight={700} sx={{ color: '#D5A249', mb: 1, fontSize: { xs: '1.3rem', sm: '1.5rem', md: '2.125rem' } }}>
+                ₹{product.price.toLocaleString('en-IN')}
               </Typography>
+
+              {/* Last Offered Price */}
+              {product.lastOfferedPrice && product.lastOfferedPrice < product.price && (
+                <Box sx={{ 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  gap: 1, 
+                  mb: 3,
+                  px: 2,
+                  py: 0.75,
+                  bgcolor: 'rgba(76, 175, 80, 0.1)',
+                  borderRadius: 2,
+                  border: '1px dashed rgba(76, 175, 80, 0.4)'
+                }}>
+                  <Typography variant="body2" sx={{ color: '#666' }}>
+                    🏷️ Last Offered:
+                  </Typography>
+                  <Typography variant="body2" fontWeight={700} sx={{ color: '#4CAF50' }}>
+                    ₹{product.lastOfferedPrice.toLocaleString('en-IN')}
+                  </Typography>
+                  <Typography variant="caption" sx={{ 
+                    bgcolor: '#4CAF50', 
+                    color: 'white', 
+                    px: 1, 
+                    py: 0.25, 
+                    borderRadius: 1,
+                    fontWeight: 600
+                  }}>
+                    Save {Math.round(((product.price - product.lastOfferedPrice) / product.price) * 100)}%
+                  </Typography>
+                </Box>
+              )}
+
+              {!product.lastOfferedPrice && <Box sx={{ mb: 3 }} />}
 
               <Typography variant="body1" color="text.secondary" sx={{ mb: 4, lineHeight: 1.8 }}>
                 {product.description}
@@ -366,11 +405,37 @@ const ProductDetails: React.FC = () => {
                 </Button>
               </Box>
 
+              {/* Auto Purchase Button */}
+              <Box sx={{ mb: 4 }}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  fullWidth
+                  onClick={() => setAutoPurchaseDialogOpen(true)}
+                  disabled={!product.inStock || isMonitoring(product.id)}
+                  startIcon={<TrendingDownIcon />}
+                  sx={{ 
+                    py: 2, 
+                    bgcolor: isMonitoring(product.id) ? '#4caf50' : '#000',
+                    color: '#fff',
+                    fontWeight: 700,
+                    border: '2px solid #D5A249',
+                    '&:hover': { bgcolor: isMonitoring(product.id) ? '#45a049' : '#222' },
+                    '&:disabled': { bgcolor: '#ccc', borderColor: '#ccc' }
+                  }}
+                >
+                  {isMonitoring(product.id) ? '🎯 AUTO-PURCHASE ACTIVE' : '🎯 SET AUTO-PURCHASE'}
+                </Button>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1 }}>
+                  Set a target price and we'll auto-buy when the price drops!
+                </Typography>
+              </Box>
+
               {/* Features */}
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 4, borderTop: '1px solid #eee' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                   <LocalShippingOutlinedIcon sx={{ color: '#D5A249' }} />
-                  <Typography variant="body2">Free shipping on orders over $200</Typography>
+                  <Typography variant="body2">Free shipping on orders over ₹20,000</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                   <CachedIcon sx={{ color: '#D5A249' }} />
@@ -392,6 +457,7 @@ const ProductDetails: React.FC = () => {
             onChange={(_, v) => setActiveTab(v)}
             sx={{ 
               mb: 4,
+              '& .MuiTabs-scroller': { overflow: { xs: 'auto !important', md: 'hidden !important' } },
               '& .Mui-selected': { color: '#2C2C2C !important' },
               '& .MuiTabs-indicator': { bgcolor: '#D5A249' }
             }}
@@ -417,9 +483,9 @@ const ProductDetails: React.FC = () => {
           {activeTab === 2 && (
             <Box sx={{ maxWidth: 800 }}>
               <Typography variant="body1" sx={{ mb: 2 }}>• Standard delivery: 5-7 business days</Typography>
-              <Typography variant="body1" sx={{ mb: 2 }}>• Express delivery: 2-3 business days (+$15)</Typography>
-              <Typography variant="body1" sx={{ mb: 2 }}>• Overnight delivery: Next business day (+$30)</Typography>
-              <Typography variant="body1">• Free shipping on all orders over $200</Typography>
+              <Typography variant="body1" sx={{ mb: 2 }}>• Express delivery: 2-3 business days (+₹1,500)</Typography>
+              <Typography variant="body1" sx={{ mb: 2 }}>• Overnight delivery: Next business day (+₹3,000)</Typography>
+              <Typography variant="body1">• Free shipping on all orders over ₹20,000</Typography>
             </Box>
           )}
         </Box>
@@ -433,8 +499,8 @@ const ProductDetails: React.FC = () => {
                 <Box 
                   key={p.id}
                   sx={{ 
-                    flex: { xs: '1 1 45%', sm: '1 1 30%', md: '1 1 22%' },
-                    maxWidth: { xs: '48%', sm: '32%', md: '24%' }
+                    flex: { xs: '0 0 calc(50% - 12px)', sm: '1 1 30%', md: '1 1 22%' },
+                    maxWidth: { xs: 'calc(50% - 12px)', sm: '32%', md: '24%' }
                   }}
                 >
                   <ProductCard {...p} />
@@ -467,6 +533,20 @@ const ProductDetails: React.FC = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
+
+      {/* Auto Purchase Dialog */}
+      <AutoPurchaseDialog
+        open={autoPurchaseDialogOpen}
+        onClose={() => setAutoPurchaseDialogOpen(false)}
+        product={{
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          sizes: product.sizes,
+          colors: product.colors
+        }}
+      />
     </Box>
   );
 };

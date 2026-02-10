@@ -34,7 +34,19 @@ export const CoBrowseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
         console.log("Attempting to connect to WS...");
         setStatus('connecting');
-        const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8080';
+        // Auto-detect WebSocket URL: explicit env > derived from API URL > localhost fallback
+        const getWsUrl = () => {
+            if (import.meta.env.VITE_WS_URL) return import.meta.env.VITE_WS_URL;
+            if (import.meta.env.VITE_API_URL) {
+                // Derive WS URL from API URL (https://x.com/api -> wss://x.com)
+                return import.meta.env.VITE_API_URL
+                    .replace(/\/api$/, '')
+                    .replace(/^https:/, 'wss:')
+                    .replace(/^http:/, 'ws:');
+            }
+            return 'ws://localhost:8080';
+        };
+        const wsUrl = getWsUrl();
         console.log("Connecting to:", wsUrl);
         const ws = new WebSocket(wsUrl);
         

@@ -60,8 +60,8 @@ const Shipping: React.FC = () => {
     shippingCost: shippingInfo?.shippingCost || 0
   });
 
-  const [shippingMethod, setShippingMethod] = useState<'standard' | 'express' | 'overnight'>(
-    shippingInfo?.shippingMethod || 'standard'
+  const [shippingMethod, setShippingMethod] = useState<'standard' | 'express'>(
+    (shippingInfo?.shippingMethod as 'standard' | 'express') || 'standard'
   );
   const [saveInfo, setSaveInfo] = useState(true);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -74,35 +74,45 @@ const Shipping: React.FC = () => {
   // Calculate shipping costs based on geocoded distance
   const actualDistance = mapDistance;
 
-  // Calculate shipping options with actual distance
+  // Calculate shipping options with actual distance and cart total
   const calculatedShippingOptions = useMemo(() => {
-    if (actualDistance > 0) {
-      return [
-        {
-          id: 'standard' as const,
-          name: 'Standard Delivery',
-          icon: '📦',
-          deliveryDays: '5-7 business days',
-          cost: Math.min(Math.round(30 + (actualDistance * 2)), 500)
-        },
-        {
-          id: 'express' as const,
-          name: 'Express Delivery',
-          icon: '🚚',
-          deliveryDays: '2-3 business days',
-          cost: Math.min(Math.round(50 + (actualDistance * 4)), 1000)
-        },
-        {
-          id: 'overnight' as const,
-          name: 'Overnight Delivery',
-          icon: '✈️',
-          deliveryDays: 'Next business day',
-          cost: Math.min(Math.round(100 + (actualDistance * 8)), 2000)
-        }
-      ];
+    // Determine cost based on distance and cart total
+    
+    // Standard Delivery
+    let standardCost = 0;
+    if (totalPrice < 300) {
+      // If distance is known, calculate based on it, otherwise default base cost
+      const baseCost = actualDistance > 0 ? Math.round(30 + (actualDistance * 2)) : 50; 
+      standardCost = Math.min(baseCost, 500);
     }
-    return null;
-  }, [actualDistance]);
+    // Else free if >= 300
+
+    // Express Delivery
+    let expressCost = 0;
+    if (totalPrice < 600) {
+      // If distance is known, calculate based on it, otherwise default base cost
+      const baseCost = actualDistance > 0 ? Math.round(50 + (actualDistance * 4)) : 100;
+      expressCost = Math.min(baseCost, 1000);
+    }
+    // Else free if >= 600
+
+    return [
+      {
+        id: 'standard' as const,
+        name: 'Standard Delivery',
+        icon: '📦',
+        deliveryDays: '5-7 business days',
+        cost: standardCost
+      },
+      {
+        id: 'express' as const,
+        name: 'Express Delivery',
+        icon: '🚚',
+        deliveryDays: '2-3 business days',
+        cost: expressCost
+      }
+    ];
+  }, [actualDistance, totalPrice]);
 
   const selectedShippingOption = calculatedShippingOptions?.find(o => o.id === shippingMethod);
   const shippingCost = selectedShippingOption?.cost || 0;
@@ -421,8 +431,7 @@ const Shipping: React.FC = () => {
             <RadioGroup value={shippingMethod} onChange={(e) => setShippingMethod(e.target.value as typeof shippingMethod)}>
               {(calculatedShippingOptions || [
                 { id: 'standard' as const, name: 'Standard Delivery', icon: '📦', deliveryDays: '5-7 business days', cost: 0 },
-                { id: 'express' as const, name: 'Express Delivery', icon: '🚚', deliveryDays: '2-3 business days', cost: 0 },
-                { id: 'overnight' as const, name: 'Overnight Delivery', icon: '✈️', deliveryDays: 'Next business day', cost: 0 }
+                { id: 'express' as const, name: 'Express Delivery', icon: '🚚', deliveryDays: '2-3 business days', cost: 0 }
               ]).map(option => (
                 <Box
                   key={option.id}
@@ -449,7 +458,7 @@ const Shipping: React.FC = () => {
                     </Box>
                   </Box>
                   <Typography fontWeight={600} sx={{ color: option.cost > 0 ? '#D5A249' : '#888' }}>
-                    {option.cost > 0 ? `₹${option.cost}` : 'Enter address'}
+                    {option.cost === 0 ? <span style={{ color: '#4CAF50', fontWeight: 800 }}>FREE</span> : `₹${option.cost}`}
                   </Typography>
                 </Box>
               ))}
@@ -514,7 +523,7 @@ const Shipping: React.FC = () => {
                       {item.selectedColor} / {item.selectedSize} × {item.quantity}
                     </Typography>
                   </Box>
-                  <Typography variant="body2" fontWeight={600}>${(item.price * item.quantity).toFixed(2)}</Typography>
+                  <Typography variant="body2" fontWeight={600}>₹{(item.price * item.quantity).toLocaleString('en-IN')}</Typography>
                 </Box>
               ))}
               {items.length > 3 && (

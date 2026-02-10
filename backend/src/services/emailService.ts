@@ -9,19 +9,18 @@ interface EmailOptions {
 class EmailService {
     private transporter: nodemailer.Transporter;
 
+    private isConfigured: boolean = false;
+
     constructor() {
         // Debug: Log environment variables (remove in production)
-        console.log('=== Email Service Configuration ===');
-        console.log('EMAIL_HOST:', process.env.EMAIL_HOST);
-        console.log('EMAIL_PORT:', process.env.EMAIL_PORT);
-        console.log('EMAIL_USER:', process.env.EMAIL_USER);
-        console.log('EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? '***SET***' : 'MISSING');
-        console.log('EMAIL_FROM:', process.env.EMAIL_FROM);
-        console.log('===================================');
+        // ... (logging maintained if desired or simplified)
 
         // Validate required environment variables
         if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-            throw new Error('EMAIL_USER and EMAIL_PASSWORD must be set in .env file');
+            console.warn('WARNING: EMAIL_USER and EMAIL_PASSWORD not set. Email service will be disabled.');
+            // Initialize with a dummy transport or leave undefined/null and check before sending
+            this.transporter = nodemailer.createTransport({ jsonTransport: true }); // Dummy transport
+            return;
         }
 
         this.transporter = nodemailer.createTransport({
@@ -33,6 +32,7 @@ class EmailService {
                 pass: process.env.EMAIL_PASSWORD, // Gmail App Password
             },
         });
+        this.isConfigured = true;
     }
 
     async sendEmail(options: EmailOptions): Promise<void> {

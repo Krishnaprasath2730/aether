@@ -1,6 +1,6 @@
 import React from 'react';
 import { ThemeProvider, CssBaseline, Box } from '@mui/material';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { theme } from './theme';
 import MainLayout from './Components/Layout/MainLayout';
 import CheckoutLayout from './Components/Layout/CheckoutLayout';
@@ -20,18 +20,24 @@ import Shipping from './Components/Checkout/Shipping';
 import Payment from './Components/Checkout/Payment';
 import Wallet from './Components/Pages/Wallet';
 import AdminDashboard from './Components/Pages/AdminDashboard';
+import SmartAutoPay from './Components/Pages/SmartAutoPay';
 import OutletHub from './Components/Pages/OutletHub';
 import Rewards from './Components/Pages/Rewards';
+import OrderHistory from './Components/Pages/OrderHistory';
 import { CoBrowseProvider } from './Components/Features/CoBrowsing/CoBrowseContext';
 import CoBrowseManager from './Components/Features/CoBrowsing/CoBrowseManager';
+import CustomCursor from './Components/Common/CustomCursor';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { CheckoutProvider } from './context/CheckoutContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider as DynamicThemeProvider, useTheme } from './context/ThemeContext';
 import { ScratchCardProvider } from './context/ScratchCardContext';
+import { WalletProvider } from './context/WalletContext';
+import { AutoPurchaseProvider } from './context/AutoPurchaseContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { AetherLoader } from './Components/Common/AetherLoader';
 
 // Protected Route Component
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -45,8 +51,22 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return !isAuthenticated ? <>{children}</> : <Navigate to="/account" />;
 };
 
+
 const AppContent: React.FC = () => {
   const { currentTheme } = useTheme();
+  const location = useLocation();
+  const [isLoading, setIsLoading] = React.useState(true); // Initial loading state
+
+  // No need for separate timer, loader handles completion
+  // React.useEffect(() => {}, []); 
+
+  // Scroll to top on route change
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]); 
+
+  const authPaths = ['/login', '/signup', '/verify-otp', '/forgot-password', '/reset-password'];
+  const hideCoBrowse = authPaths.some(path => location.pathname === path || location.pathname.startsWith(path + '/'));
 
   return (
     <Box sx={{
@@ -54,7 +74,9 @@ const AppContent: React.FC = () => {
       background: currentTheme.backgroundGradient,
       transition: 'background 0.5s ease'
     }}>
-      <CoBrowseManager />
+      <AetherLoader isLoading={isLoading} onLoadingComplete={() => setIsLoading(false)} />
+      <CustomCursor />
+      {!hideCoBrowse && <CoBrowseManager />}
       <Routes>
         {/* Authentication Routes */}
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
@@ -72,9 +94,11 @@ const AppContent: React.FC = () => {
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="outlet" element={<OutletHub />} />
           <Route path="rewards" element={<PrivateRoute><Rewards /></PrivateRoute>} />
-          <Route path="account/*" element={<PrivateRoute><Account /></PrivateRoute>} />
+          <Route path="account" element={<PrivateRoute><Account /></PrivateRoute>} />
+          <Route path="account/orders" element={<PrivateRoute><OrderHistory /></PrivateRoute>} />
           <Route path="wallet" element={<PrivateRoute><Wallet /></PrivateRoute>} />
           <Route path="admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
+          <Route path="smart-autopay" element={<PrivateRoute><SmartAutoPay /></PrivateRoute>} />
         </Route>
 
         {/* Secure Checkout Routes */}
@@ -105,21 +129,25 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <ScratchCardProvider>
-              <CheckoutProvider>
-                <CoBrowseProvider>
-                  <DynamicThemeProvider>
-                    <Router>
-                      <AppContent />
-                    </Router>
-                  </DynamicThemeProvider>
-                </CoBrowseProvider>
-              </CheckoutProvider>
-            </ScratchCardProvider>
-          </WishlistProvider>
-        </CartProvider>
+        <WalletProvider>
+          <CartProvider>
+            <AutoPurchaseProvider>
+              <WishlistProvider>
+                <ScratchCardProvider>
+                  <CheckoutProvider>
+                    <CoBrowseProvider>
+                      <DynamicThemeProvider>
+                        <Router>
+                          <AppContent />
+                        </Router>
+                      </DynamicThemeProvider>
+                    </CoBrowseProvider>
+                  </CheckoutProvider>
+                </ScratchCardProvider>
+              </WishlistProvider>
+            </AutoPurchaseProvider>
+          </CartProvider>
+        </WalletProvider>
       </AuthProvider>
     </ThemeProvider>
   );

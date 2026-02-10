@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box, Typography, Container, Paper } from '@mui/material';
 import { Outlet, Link } from 'react-router-dom';
-import HttpsIcon from '@mui/icons-material/Https';
 import logo from '../../assets/logo.png';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -37,11 +36,7 @@ const CheckoutLayout: React.FC = () => {
               </Typography>
             </Box>
           </Link>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'success.main' }}>
-            <HttpsIcon fontSize="small" />
-            <Typography variant="body2" fontWeight={600} sx={{ display: { xs: 'none', sm: 'block' } }}>
-              SECURE CHECKOUT
-            </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           </Box>
         </Container>
       </Paper>

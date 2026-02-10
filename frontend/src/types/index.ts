@@ -15,6 +15,8 @@ export interface Product {
     originalPrice?: number; // For discounted refurbished items
     stockCount?: number;
     productType?: 'shirt' | 'pant' | 'other';
+    subCategory?: string;
+    lastOfferedPrice?: number; // Historical lowest price
 }
 
 export interface CartItem extends Product {

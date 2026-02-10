@@ -20,9 +20,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const DARK_MODE_KEY = 'aether_dark_mode';
-
-const lightThemes: Record<string, ThemeConfig> = {
+const themes: Record<string, ThemeConfig> = {
     Winter: {
         name: 'Winter',
         colors: {
@@ -62,104 +60,54 @@ const lightThemes: Record<string, ThemeConfig> = {
             text: '#000000',
         },
         backgroundGradient: 'linear-gradient(to bottom, #ffffff, #f5f5f5)',
-    }
-};
-
-const darkThemes: Record<string, ThemeConfig> = {
-    Winter: {
-        name: 'Winter Dark',
-        colors: {
-            primary: '#00bcd4',
-            secondary: '#1a1a2e',
-            background: '#0f1419',
-            text: '#e1e8ed',
-        },
-        backgroundGradient: 'linear-gradient(to bottom, #0f1419, #1a1a2e)',
     },
-    Summer: {
-        name: 'Summer Dark',
+    Dark: {
+        name: 'Dark',
         colors: {
-            primary: '#ff9800',
-            secondary: '#1a1a1a',
-            background: '#121212',
-            text: '#f5f5f5',
-        },
-        backgroundGradient: 'linear-gradient(to bottom, #121212, #1a1a1a)',
-    },
-    Festival: {
-        name: 'Festival Dark',
-        colors: {
-            primary: '#d4af37',
-            secondary: '#2d2d2d',
-            background: '#1a1a1a',
-            text: '#f5f5f5',
-        },
-        backgroundGradient: 'linear-gradient(to bottom, #1a1a1a, #2d2d2d)',
-    },
-    Default: {
-        name: 'Default Dark',
-        colors: {
-            primary: '#D4AF37', // Gold
-            secondary: '#f5f5f5',
+            primary: '#D4AF37',
+            secondary: '#ffffff',
             background: '#121212',
             text: '#ffffff',
         },
-        backgroundGradient: 'linear-gradient(to bottom, #121212, #1a1a1a)',
+        backgroundGradient: 'linear-gradient(180deg, #121212 0%, #1a1a1a 100%)',
     }
 };
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [season, setSeason] = useState<ThemeContextType['season']>('Default');
-    const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-        const stored = localStorage.getItem(DARK_MODE_KEY);
-        if (stored !== null) return stored === 'true';
-        return window.matchMedia?.('(prefers-color-scheme: dark)').matches || false;
-    });
-
-    const themes = isDarkMode ? darkThemes : lightThemes;
+    const [isDarkMode, setIsDarkMode] = useState(false);
     const [theme, setTheme] = useState<ThemeConfig>(themes.Default);
 
-    // Apply dark mode class to body
+    // Initial Season Detection
     useEffect(() => {
-        localStorage.setItem(DARK_MODE_KEY, String(isDarkMode));
-        if (isDarkMode) {
-            document.body.classList.add('dark-mode');
-            document.body.classList.remove('light-mode');
-        } else {
-            document.body.classList.add('light-mode');
-            document.body.classList.remove('dark-mode');
+        const date = new Date();
+        const month = date.getMonth();
+        const day = date.getDate();
+
+        let currentSeason: ThemeContextType['season'] = 'Default';
+
+        // Check for Festivals
+        if ((month === 0 && day === 1) || (month === 11 && day === 25)) {
+            currentSeason = 'Festival';
         }
-    }, [isDarkMode]);
+        // Check Seasons
+        else if (month === 11 || month === 0 || month === 1) {
+            currentSeason = 'Winter';
+        } else if (month >= 2 && month <= 4) {
+            currentSeason = 'Summer';
+        }
 
+        setSeason(currentSeason);
+    }, []);
+
+    // Update Theme when Season or Dark Mode changes
     useEffect(() => {
-        const updateTheme = () => {
-            const date = new Date();
-            const month = date.getMonth();
-            const day = date.getDate();
-            const currentThemes = isDarkMode ? darkThemes : lightThemes;
-
-            // Check for Festivals
-            if ((month === 0 && day === 1) || (month === 11 && day === 25)) {
-                setSeason('Festival');
-                setTheme(currentThemes.Festival);
-                return;
-            }
-
-            // Check Seasons
-            if (month === 11 || month === 0 || month === 1) {
-                setSeason('Winter');
-                setTheme(currentThemes.Winter);
-            } else if (month >= 2 && month <= 4) {
-                setSeason('Summer');
-                setTheme(currentThemes.Summer);
-            } else {
-                setSeason('Default');
-                setTheme(currentThemes.Default);
-            }
-        };
-
-        updateTheme();
-    }, [isDarkMode]);
+        if (isDarkMode) {
+            setTheme(themes.Dark);
+        } else {
+            setTheme(themes[season] || themes.Default);
+        }
+    }, [season, isDarkMode]);
 
     const toggleDarkMode = () => {
         setIsDarkMode(prev => !prev);

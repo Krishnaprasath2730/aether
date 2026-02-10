@@ -1,5 +1,5 @@
 import { WebSocketServer, WebSocket } from 'ws';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import http from 'http';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -39,7 +39,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/scratch-cards', scratchCardRoutes);
 
 // Health check endpoint
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
     res.json({ message: 'Aether Server Running', status: 'healthy' });
 });
 
@@ -58,24 +58,23 @@ interface Client {
 const clients = new Map<WebSocket, Client>();
 
 // Connect to MongoDB
-const Start_Server = async () => {
+// Connect to MongoDB
+const Start_Server = () => {
+    connectDB()
+        .then(() => console.log('MongoDB connected'))
+        .catch(err => console.error('MongoDB connection error:', err));
 
-    try {
-        await connectDB();
-        server.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
-            // console.log(`HTTP API: http://localhost:${PORT}`);
-            // console.log(`WebSocket: ws://localhost:${PORT}`);
-        });
-    } catch (error) {
-        console.error('Error starting server:', error);
-    }
+    server.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+        // console.log(`HTTP API: http://localhost:${PORT}`);
+        // console.log(`WebSocket: ws://localhost:${PORT}`);
+    });
 }
 
-wss.on('connection', (ws) => {
+wss.on('connection', (ws: WebSocket) => {
     console.log('New client connected');
 
-    ws.on('message', (message) => {
+    ws.on('message', (message: any) => {
         try {
             const data = JSON.parse(message.toString());
             const { type, sessionId, payload } = data;

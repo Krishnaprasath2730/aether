@@ -143,6 +143,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
                 email: user.email,
                 role: user.role,
                 walletBalance: user.walletBalance,
+                profilePhoto: user.profilePhoto,
             },
         });
     } catch (error: any) {

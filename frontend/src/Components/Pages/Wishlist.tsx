@@ -39,10 +39,10 @@ const Wishlist: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 6 }}>
+    <Container maxWidth="lg" sx={{ py: { xs: 3, md: 6 } }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Box>
-          <Typography variant="h3" fontWeight={800}>My Wishlist</Typography>
+          <Typography variant="h3" fontWeight={800} sx={{ fontSize: { xs: '1.5rem', sm: '2rem', md: '3rem' } }}>My Wishlist</Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
             {items.length} {items.length === 1 ? 'item' : 'items'} saved
           </Typography>
@@ -67,8 +67,8 @@ const Wishlist: React.FC = () => {
           <Box 
             key={item.id}
             sx={{ 
-              flex: { xs: '1 1 45%', sm: '1 1 30%', md: '1 1 22%' },
-              maxWidth: { xs: '48%', sm: '32%', md: '24%' },
+              flex: { xs: '0 0 calc(50% - 12px)', sm: '1 1 30%', md: '1 1 22%' },
+              maxWidth: { xs: 'calc(50% - 12px)', sm: '32%', md: '24%' },
               position: 'relative' 
             }}
           >

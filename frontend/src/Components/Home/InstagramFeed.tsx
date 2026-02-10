@@ -11,17 +11,17 @@ const images = [
 
 const InstagramFeed: React.FC = () => {
   return (
-    <Box sx={{ py: 8 }}>
+    <Box sx={{ py: { xs: 4, md: 8 } }}>
       <Container maxWidth="xl" sx={{ textAlign: 'center', mb: 4 }}>
         <Typography variant="body1" sx={{ color: '#666' }}>@Aether Follow Us On Instagram</Typography>
       </Container>
       
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(5, 1fr)' } }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(3, 1fr)', md: 'repeat(5, 1fr)' } }}>
         {images.map((url, i) => (
           <Box 
             key={i}
             sx={{ 
-              height: 250, 
+              height: { xs: 150, sm: 200, md: 250 }, 
               backgroundImage: `url(${url})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',

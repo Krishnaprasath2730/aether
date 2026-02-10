@@ -61,7 +61,8 @@ const ProductCard: React.FC<ProductCardProps> = (product) => {
       <Box
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        sx={{ position: 'relative', cursor: 'pointer' }}
+        data-cursor="view" // Enable custom cursor hover state
+        sx={{ position: 'relative', cursor: 'none' }} 
       >
         {/* Image Container */}
         <Box sx={{ position: 'relative', overflow: 'hidden', borderRadius: 2, bgcolor: '#f5f5f5' }}>
@@ -119,17 +120,19 @@ const ProductCard: React.FC<ProductCardProps> = (product) => {
           {/* Wishlist Button */}
           <IconButton
             onClick={handleWishlistToggle}
+            data-cursor="transparent"
             sx={{
               position: 'absolute',
               top: 12,
               right: 12,
+              cursor: 'none', // Ensure browser cursor is hidden
               bgcolor: 'white',
               width: 40,
               height: 40,
               boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
               transition: 'all 0.3s',
-              transform: isHovered ? 'translateY(0)' : 'translateY(-10px)',
-              opacity: isHovered ? 1 : 0,
+              transform: { xs: 'translateY(0)', md: isHovered ? 'translateY(0)' : 'translateY(-10px)' },
+              opacity: { xs: 1, md: isHovered ? 1 : 0 },
               '&:hover': { bgcolor: inWishlist ? '#ffebee' : 'white', transform: 'scale(1.1)' }
             }}
           >
@@ -159,12 +162,14 @@ const ProductCard: React.FC<ProductCardProps> = (product) => {
               variant="contained"
               startIcon={<ShoppingBagOutlinedIcon />}
               onClick={handleQuickAdd}
+              data-cursor="transparent"
               sx={{
                 bgcolor: 'white',
                 color: '#2C2C2C',
                 py: 1.2,
                 fontWeight: 600,
                 fontSize: '0.8rem',
+                cursor: 'none',
                 boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
                 '&:hover': { bgcolor: '#2C2C2C', color: 'white' }
               }}
@@ -174,9 +179,11 @@ const ProductCard: React.FC<ProductCardProps> = (product) => {
             <IconButton
               component={Link}
               to={`/product/${product.id}`}
+              data-cursor="transparent"
               sx={{
                 bgcolor: 'white',
                 width: 46,
+                cursor: 'none',
                 boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
                 '&:hover': { bgcolor: '#D5A249', color: 'white' }
               }}
@@ -217,7 +224,7 @@ const ProductCard: React.FC<ProductCardProps> = (product) => {
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 1 }}>
             <Typography variant="body1" fontWeight={700} sx={{ fontSize: '1.1rem' }}>
-              ${product.price.toFixed(2)}
+              ₹{product.price.toLocaleString('en-IN')}
             </Typography>
             {/* Original price - show actual original for refurbished, or calculated for regular */}
             <Typography
@@ -228,7 +235,7 @@ const ProductCard: React.FC<ProductCardProps> = (product) => {
                 fontSize: '0.85rem'
               }}
             >
-              ${(product.originalPrice || product.price * 1.3).toFixed(2)}
+              ₹{(product.originalPrice || product.price * 1.3).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
             </Typography>
             {/* Show savings percentage for refurbished */}
             {product.isRefurbished && product.originalPrice && (
@@ -282,6 +289,28 @@ const ProductCard: React.FC<ProductCardProps> = (product) => {
               </Typography>
             )}
           </Box>
+
+          {/* Last Offered Price */}
+          {product.lastOfferedPrice && product.lastOfferedPrice < product.price && (
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 0.75, 
+              mt: 1.5,
+              px: 1.5,
+              py: 0.5,
+              bgcolor: 'rgba(76, 175, 80, 0.08)',
+              borderRadius: 1.5,
+              width: 'fit-content'
+            }}>
+              <Typography variant="caption" sx={{ color: '#666', fontSize: '0.7rem' }}>
+                🏷️ Last Offered:
+              </Typography>
+              <Typography variant="caption" fontWeight={700} sx={{ color: '#4CAF50', fontSize: '0.75rem' }}>
+                ₹{product.lastOfferedPrice.toLocaleString('en-IN')}
+              </Typography>
+            </Box>
+          )}
         </Box>
       </Box>
 
@@ -306,7 +335,7 @@ const ProductCard: React.FC<ProductCardProps> = (product) => {
               </Typography>
               <Typography variant="h6" fontWeight={600}>{product.name}</Typography>
               <Typography variant="h6" fontWeight={700} sx={{ mt: 1 }}>
-                ${product.price.toFixed(2)}
+                ₹{product.price.toLocaleString('en-IN')}
               </Typography>
             </Box>
             <IconButton onClick={() => setShowQuickAdd(false)} sx={{ alignSelf: 'flex-start' }}>

@@ -261,6 +261,24 @@ const Account: React.FC = () => {
                                     <Button
                                         variant="outlined"
                                         fullWidth
+                                        onClick={() => navigate('/account/orders')}
+                                        sx={{
+                                            borderColor: '#000000',
+                                            color: '#000000',
+                                            py: 1.5,
+                                            fontWeight: 600,
+                                            letterSpacing: '0.05em',
+                                            '&:hover': {
+                                                borderColor: '#000000',
+                                                bgcolor: 'rgba(0,0,0,0.05)',
+                                            },
+                                        }}
+                                    >
+                                        My Orders
+                                    </Button>
+                                    <Button
+                                        variant="outlined"
+                                        fullWidth
                                         onClick={() => navigate('/shop')}
                                         sx={{
                                             borderColor: '#000000',

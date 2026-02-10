@@ -31,7 +31,7 @@ const Newsletter: React.FC = () => {
   };
 
   const benefits = [
-    { icon: <LocalShippingOutlinedIcon sx={{ fontSize: 28 }} />, title: 'Free Shipping', desc: 'On orders $200+' },
+    { icon: <LocalShippingOutlinedIcon sx={{ fontSize: 28 }} />, title: 'Free Shipping', desc: 'On orders ₹200+' },
     { icon: <CardGiftcardOutlinedIcon sx={{ fontSize: 28 }} />, title: 'Exclusive Offers', desc: 'Members only' },
     { icon: <VerifiedOutlinedIcon sx={{ fontSize: 28 }} />, title: 'Early Access', desc: 'New arrivals' },
     { icon: <DiamondOutlinedIcon sx={{ fontSize: 28 }} />, title: 'VIP Rewards', desc: 'Earn points' }
@@ -81,14 +81,14 @@ const Newsletter: React.FC = () => {
             <Box
               key={index}
               sx={{
-                flex: { xs: '1 1 45%', md: '1 1 20%' },
-                maxWidth: { xs: '45%', md: '24%' },
+                flex: { xs: '0 0 calc(50% - 8px)', md: '1 1 20%' },
+                maxWidth: { xs: 'calc(50% - 8px)', md: '24%' },
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 textAlign: 'center',
                 gap: 1.5,
-                p: 3,
+                p: { xs: 2, md: 3 },
                 borderRadius: 3,
                 transition: 'all 0.3s',
                 '&:hover': {
@@ -133,7 +133,7 @@ const Newsletter: React.FC = () => {
             sx={{
               mb: 2,
               fontFamily: '"Playfair Display", serif',
-              fontSize: { xs: '2.5rem', md: '3.5rem' },
+              fontSize: { xs: '1.8rem', sm: '2.5rem', md: '3.5rem' },
               fontWeight: 400,
               '& span': { fontStyle: 'italic', fontWeight: 300 }
             }}
@@ -157,6 +157,7 @@ const Newsletter: React.FC = () => {
             onSubmit={handleSubmit}
             sx={{
               display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
               gap: 0,
               maxWidth: 500,
               mx: 'auto',
@@ -198,7 +199,7 @@ const Newsletter: React.FC = () => {
                 bgcolor: isDarkMode ? '#D4AF37' : '#2C2C2C',
                 color: isDarkMode ? '#121212' : 'white',
                 fontWeight: 700,
-                borderRadius: 0,
+                borderRadius: { xs: '0 0 8px 8px', sm: 0 },
                 whiteSpace: 'nowrap',
                 '&:hover': { bgcolor: '#D5A249', color: '#0a0a0a' }
               }}

@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 const API_URL = `${BASE_URL}/auth`;
 
 export interface LoginData {
@@ -365,6 +365,29 @@ class ApiService {
 
         if (!response.ok) {
             throw new Error(result.message || 'Failed to delete profile photo');
+        }
+
+        return result;
+    }
+
+    // Send Auto-Purchase Notification
+    async sendAutoPurchaseNotification(token: string, data: {
+        productName: string;
+        purchasePrice: number;
+        targetPrice: number;
+        deliveryAddress?: string;
+        userEmail?: string;
+    }): Promise<{ message: string }> {
+        const response = await fetch(`${BASE_URL}/notifications/auto-purchase`, {
+            method: 'POST',
+            headers: this.getAuthHeaders(token),
+            body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || 'Failed to send notification');
         }
 
         return result;
